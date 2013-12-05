@@ -158,8 +158,6 @@ public class UserID extends HttpServlet{
 		Filter userNameFilter = new Query.FilterPredicate("username", FilterOperator.EQUAL, username);
 		Filter passwordNameFilter = new Query.FilterPredicate("password", FilterOperator.EQUAL, password);
 		
-		query.setFilter(userNameFilter);
-		
 		CompositeFilter userpasswordCombinationFilter = new CompositeFilter(CompositeFilterOperator.AND, Arrays.asList(userNameFilter, passwordNameFilter));
 		
 		query.setFilter(userpasswordCombinationFilter);
