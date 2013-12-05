@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -35,13 +36,15 @@ import com.google.gson.JsonArray;
  */
 @SuppressWarnings("serial")
 public class DonationRequests extends HttpServlet {
+	
+	private static final Logger log = Logger.getLogger(DonationRequests.class.getSimpleName());
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		
 		// check if the user specified the requests-by-beneficiary
 		String beneficiaryId = req.getParameter("beneficiary");
-
+        log.info("doGet(...) Beneficiary-ID = "+beneficiaryId);
 		// we need to process the get request here...
 		List<Entity> requests = getDonationOffers(beneficiaryId);
 		if(requests != null){
@@ -76,7 +79,7 @@ public class DonationRequests extends HttpServlet {
 		
 		query.addSort("date", Query.SortDirection.DESCENDING);
 		offers = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(20));		
-
+        
 		return offers;
 	}
 	/**

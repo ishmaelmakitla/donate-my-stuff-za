@@ -2,9 +2,11 @@ package org.rhok.pta.donate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +34,9 @@ import com.google.gson.JsonObject;
  */
 @SuppressWarnings("serial")
 public class UserID extends HttpServlet{
+	
+	private static final Logger log = Logger.getLogger(UserID.class.getSimpleName());
+	
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 		String payload = req.getParameter("payload");			
@@ -47,6 +52,7 @@ public class UserID extends HttpServlet{
 		}
 		catch(IOException ioe){
 			ioe.printStackTrace();
+			log.severe("doGet:: Error Processing Login Request: "+ioe.getLocalizedMessage());
 			writeOutput(resp," Error: There were issues procesin your donation request");
 		}
 	}
@@ -69,7 +75,7 @@ public class UserID extends HttpServlet{
 			}
 		}
 		catch(IOException ioe){
-			ioe.printStackTrace();
+			log.severe("doPost:: Error Processing Login Request: "+ioe.getLocalizedMessage());
 			writeOutput(resp," Error: There were issues procesin your donation request");
 		}
 	}
@@ -80,6 +86,7 @@ public class UserID extends HttpServlet{
 	 * @param response
 	 */
 	private void getRawPayload(HttpServletRequest request, HttpServletResponse response){
+						
 		StringBuffer rawData = new StringBuffer();
 		  String line = null;
 		  try {
@@ -88,15 +95,21 @@ public class UserID extends HttpServlet{
 			  		rawData.append(line);
 			  	}
 			  
-			  	System.out.println("getRawPayload(...) DATA = \n"+rawData);
+			  	log.info("getRawPayload(...) DATA = \n"+rawData);
 			  		
 		  } catch (Exception e) { e.printStackTrace(); }
 
 		  if(rawData.length()>0){
-			  doRequest(response, rawData.toString()); 
+			  try {
+				    String decodedPayload = URLDecoder.decode(rawData.toString(),"UTF-8");
+				    doRequest(response,decodedPayload); 
+			    } 
+			  catch (UnsupportedEncodingException e) {
+				  log.severe("Error Decoding Raw Data Stream: "+e.getLocalizedMessage());				
+			    }			 
 		  }
 		  else{
-			  System.err.println("The data stream is empty - no data received");
+			  log.severe("The data stream is empty - no data received");
 		  }
 	}
 	/**
@@ -108,16 +121,21 @@ public class UserID extends HttpServlet{
 		LoginRequest loginRequest = (new Gson()).fromJson(data, LoginRequest.class);
 		if(loginRequest != null){
 			Entity knownUser = getUser(loginRequest.getUsername(), loginRequest.getPassword());
-			Object uidProperty =  knownUser.getProperty("");
+			Object uidProperty =  knownUser.getProperty("id");
+			
 			String userID = (uidProperty != null?  uidProperty.toString(): "");
+			log.info("User Found With ID:: "+userID);
+			
 			if(!userID.trim().isEmpty()){
-				writeOutput(response, asServerResponse(DonateMyStuffConstants.DONATION_OFFER_SUCCESS, userID));
+				writeOutput(response, asServerResponse(DonateMyStuffConstants.LOGIN_SUCCESSFULL, userID));
 			}
 			else{
 				//user not found or login error
-				writeOutput(response, asServerResponse(DonateMyStuffConstants.DONATION_OFFER_FAILURE, userID));
-			}
-			
+				writeOutput(response, asServerResponse(DonateMyStuffConstants.LOGIN_FAILED, userID));
+			}			
+		}
+		else{
+			writeOutput(response, asServerResponse(DonateMyStuffConstants.LOGIN_FAILED, "Login Failed"));
 		}
 	}
 	
@@ -129,6 +147,8 @@ public class UserID extends HttpServlet{
 	 * @return
 	 */
 	private Entity getUser(String username, String password){
+		
+		log.info("getUser ("+username+", <password>");
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		
@@ -178,6 +198,7 @@ public class UserID extends HttpServlet{
         response.setCharacterEncoding("UTF-8");
         try{
         	Writer outputWriter = response.getWriter();
+        	log.info("Returning :: "+output);
         	outputWriter.write(output);
         }
         catch(IOException ioe){

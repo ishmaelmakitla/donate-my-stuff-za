@@ -13,6 +13,7 @@ public class DonationRequest {
     String donationofferid;
     Date requestdate;
     DonatedItem item;
+    boolean collect;
     
     public DonationRequest(){
     	this.id = UUID.randomUUID().toString();
@@ -77,6 +78,15 @@ public class DonationRequest {
 		this.item = requestedDonationItem;
 	}
 
+
+	public boolean getCollect() {
+		return collect;
+	}
+
+
+	public void setCollect(boolean collect) {
+		this.collect = collect;
+	}
 
 
 	/**

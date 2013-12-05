@@ -1,7 +1,11 @@
 package org.rhok.pta.donate;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Writer;
+import java.net.URLDecoder;
 import java.util.Date;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +16,7 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.gson.Gson;
 
 /**
@@ -26,36 +31,123 @@ import com.google.gson.Gson;
  *
  */
 public class Register extends HttpServlet{
+	
+	private static final Logger log = Logger.getLogger(Register.class.getSimpleName());
+	
 	//this servlet allows registrations that post a JSON document or parameters
+	/**
+	 * Method that handles the POST request
+	 */
 	public void doPost(HttpServletRequest request, HttpServletResponse response)throws IOException {
 		String payload = request.getParameter("payload");
+		log.info("Payload Parameter = "+payload);
+		
+			if(payload != null){
+				String decodedPayload = URLDecoder.decode(payload, "UTF-8");
+				log.info("Payload Parameter (DECODED) = "+decodedPayload);
+				RegistrationRequest registration = (new Gson()).fromJson(decodedPayload, RegistrationRequest.class);
+					
+				    if(registration != null){
+					     doRegister(registration, response);				
+				       }
+				   else{
+					     log.severe("Was Unable To Deserialize POST-Data :: "+decodedPayload);
+					     writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, "Errors Deserializing the Registartion JSON"));
+				       }
+				  
+			  }
+			  else{
+				  log.info("Payload Parameter NOT specified - calling: processRawRegisterData(...)");
+				  processRawRegisterData(request,response);
+			  }
 		
 	}
-	
+	/**
+	 * Method that ahandles the GET request
+	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response)throws IOException {
 		String payload = request.getParameter("payload");
-		System.out.println("Payload = "+payload);
+		log.info("doGet(...):: Payload = "+payload);
+		
 		if(payload !=null){
-			//process as JSON document			
-			RegistrationRequest registration = (new Gson()).fromJson(payload, RegistrationRequest.class);
+			//process as JSON document	
+			String decodedPayload = URLDecoder.decode(payload, "UTF-8");
+			log.info("Payload Parameter (DECODED) = "+decodedPayload);
+			RegistrationRequest registration = (new Gson()).fromJson(decodedPayload, RegistrationRequest.class);
 			if(registration != null){
 				doRegister(registration, response);				
 			}
 			else{
-				System.out.println("Errors Deserializing the Registartion JSON");
-				response.getWriter().write("{500}");
+				log.severe("Errors Deserializing the Registartion JSON");
+				writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, "Errors Deserializing the Registartion JSON"));
 			}
 		}
+		
 	}
 	
+	/**
+	 * For content that was sent with a custom encoding. This method uses the Reader to read the raw content.
+	 * @param request
+	 * @param resp
+	 */
+	private void processRawRegisterData(HttpServletRequest request, HttpServletResponse resp){
+		
+		log.info("processRawRegisterData(...)");
+		
+		StringBuffer rawData = new StringBuffer();
+		  String line = null;
+		  try {
+			  	BufferedReader reader = request.getReader();
+			  	while ((line = reader.readLine()) != null){
+			  		rawData.append(line);
+			  	}
+			  
+			  	log.info("processRawRegisterData(...) DATA = \n"+rawData);
+			  		
+		  } catch (Exception e) { e.printStackTrace(); }
+
+		  if(rawData.length()>0){
+			  
+			  try{
+			  			String decodedPayload = URLDecoder.decode(rawData.toString(), "UTF-8");
+			  			log.info("Payload Parameter (DECODED) = "+decodedPayload);
+			  			RegistrationRequest registration = (new Gson()).fromJson(decodedPayload, RegistrationRequest.class);
+			  			if(registration != null){
+			  				doRegister(registration, resp);				
+			  			}
+			  			else{
+			  				String msg = "Errors Deserializing the Registartion JSON";
+			  				log.severe(msg);
+			     			writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, msg));
+			  			}
+			  }
+			  catch(IOException ioe){ log.severe("Error Processing Raw Register Data : "+ioe.getLocalizedMessage()); }
+		  }
+		  else{
+			  log.severe("The data stream is empty - no data received");
+			  writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, "Registration Failed"));
+		  }
+	}
+	
+	
+	/**
+	 * 
+	 * @param registration
+	 * @param response
+	 * @throws IOException
+	 */
 	private void doRegister(RegistrationRequest registration, HttpServletResponse response) throws IOException{
-      Key registrationRequestsKey = KeyFactory.createKey("RegistrationRequest", "Za.Donate.MyStuff");
+     
         
         Date date = new Date();
-        Entity registrationRequest = new Entity("RegistrationRequest", registrationRequestsKey);
+        
         //set reg id
         String id = registration.getRegistrationID();
         if(id == null){ id = (new RegistrationRequest()).getRegistrationID(); }
+        
+        Key registrationRequestsKey = KeyFactory.createKey("RegistrationRequest", id);
+        Entity registrationRequest = new Entity("RegistrationRequest", registrationRequestsKey);
+        
         //set id
         registrationRequest.setProperty("id", id);
         //set type
@@ -80,23 +172,47 @@ public class Register extends HttpServlet{
            registrationRequest.setProperty("address", address.toString());
         }
         else{
-        	System.out.println("WARNING - Address Could not be found...");
+        	log.info("WARNING - Address Could not be found...");
         }
         //set role (donor/beneficiary)
         registrationRequest.setProperty("role", registration.getRole());      
+        
+        registrationRequest.setProperty("creation_date", date);      
         
         //put into data store
         try{
         	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         	//save the registration in the db
             datastore.put(registrationRequest);
-        	response.getWriter().write("{200}");
+            writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_SUCCESSFULL, "Registration Successful"));
         }
         catch(Exception e){
         	e.printStackTrace();
-        	response.getWriter().write("{500}");
+        	log.severe("Error Registering: "+e.getLocalizedMessage());
+        	writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, "Registration Failed"));
         }
         
+	}
+	
+	/**
+	 * This method is used to write the output (JSON)
+	 * @param response - response object of the incoming HTTP request
+	 * @param output - message to be out-put
+	 */
+	private void writeOutput(HttpServletResponse response,String output){
+		//send back JSON response
+        String jsonResponse = new Gson().toJson(output);
+       
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try{
+        	Writer outputWriter = response.getWriter();
+        	log.info("Returning :: "+jsonResponse);
+        	outputWriter.write(jsonResponse);
+        }
+        catch(IOException ioe){
+        	
+        }
 	}
 
 }

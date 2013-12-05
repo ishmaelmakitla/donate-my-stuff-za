@@ -63,4 +63,14 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-name>Register</servlet-name>
 		<url-pattern>/register</url-pattern>
 	</servlet-mapping>	
+	
+	<!--  login servlet  -->
+	<servlet>
+		<servlet-name>UserID</servlet-name>
+		<servlet-class>org.rhok.pta.donate.UserID</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UserID</servlet-name>
+		<url-pattern>/login</url-pattern>
+	</servlet-mapping>	
 </web-app>

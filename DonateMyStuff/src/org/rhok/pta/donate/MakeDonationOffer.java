@@ -6,6 +6,7 @@ import java.io.Writer;
 import java.net.URLDecoder;
 import java.util.Date;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -26,19 +27,23 @@ import com.google.gson.Gson;
 @SuppressWarnings("serial")
 public class MakeDonationOffer extends HttpServlet{
 	
+	private static final Logger log = Logger.getLogger(MakeDonationOffer.class.getSimpleName());
+	
 	String user = null;
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 		   //get the parameters of the offer
 			String payload = req.getParameter("payload");
-			
+			log.info("Payload Parameter = "+payload);
 			try {
 				   if(payload != null){
 					   String decodedPayload = URLDecoder.decode(payload, "UTF-8");
+					   log.info("Payload Parameter (DECODED) = "+decodedPayload);
 				      doOffer(resp,decodedPayload);
 				  }
 				  else{
 					//possibly the StringEntity was used
 					//read the stream
+					  log.info("Payload Parameter NOT specified - calling: processRawDonationOfferData(...)");
 					  processRawDonationOfferData(req,resp);
 				  }
 			} catch (JSONException e) {
@@ -54,7 +59,7 @@ public class MakeDonationOffer extends HttpServlet{
 	 */
 	private void processRawDonationOfferData(HttpServletRequest request, HttpServletResponse resp){
 		
-		System.out.println("processRawDonationOfferData(...)");
+		log.info("processRawDonationOfferData(...)");
 		
 		StringBuffer rawData = new StringBuffer();
 		  String line = null;
@@ -64,7 +69,7 @@ public class MakeDonationOffer extends HttpServlet{
 			  		rawData.append(line);
 			  	}
 			  
-			  	System.out.println("processRawDonationOfferData(...) DATA = \n"+rawData);
+			  	log.info("processRawDonationOfferData(...) DATA = \n"+rawData);
 			  		
 		  } catch (Exception e) { e.printStackTrace(); }
 
@@ -73,7 +78,7 @@ public class MakeDonationOffer extends HttpServlet{
 			  catch (JSONException e) { e.printStackTrace(); }
 		  }
 		  else{
-			  System.err.println("The data stream is empty - no data received");
+			  log.severe("The data stream is empty - no data received");
 		  }
 	}
 	
@@ -82,7 +87,7 @@ public class MakeDonationOffer extends HttpServlet{
 	 * @throws JSONException 
 	 */
 	private void doOffer(HttpServletResponse response, String payload) throws JSONException{		
-		System.out.println("doOffer ()... Payload = \n "+payload+"\n");	
+		log.info("doOffer ()... Payload = \n "+payload+"\n");	
 		String requestId = UUID.randomUUID().toString();
         Key donationOffersKey = KeyFactory.createKey("DonationOffer", requestId);
         Entity donationOffer = new Entity("DonationOffer", donationOffersKey);
@@ -130,11 +135,12 @@ public class MakeDonationOffer extends HttpServlet{
 	private void writeOutput(HttpServletResponse response,String output){
 		//send back JSON response
         String jsonResponse = new Gson().toJson(output);
-        
+       
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         try{
         	Writer outputWriter = response.getWriter();
+        	 log.info("Returning :: "+jsonResponse);
         	outputWriter.write(jsonResponse);
         }
         catch(IOException ioe){

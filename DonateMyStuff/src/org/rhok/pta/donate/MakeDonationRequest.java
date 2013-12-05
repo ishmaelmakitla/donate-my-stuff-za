@@ -6,6 +6,7 @@ import java.io.Writer;
 import java.net.URLDecoder;
 import java.util.Date;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -28,25 +29,30 @@ import com.google.gson.Gson;
  */
 @SuppressWarnings("serial")
 public class MakeDonationRequest extends HttpServlet{
+	private static final Logger log = Logger.getLogger(MakeDonationRequest.class.getSimpleName());
 	String user = null;
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 					
 			//get the parameters of the offer -JSON
-			String payload = req.getParameter("payload");			
+			String payload = req.getParameter("payload");
+			log.info("Payload Parameter = "+payload);
+			
 			try {
 				if(payload !=null){
-				    String decodedPayload = URLDecoder.decode(payload,"UTF-8");
+				     String decodedPayload = URLDecoder.decode(payload,"UTF-8");
+				     log.info("Payload Parameter (DECODED) = "+decodedPayload);
 					 doRequest(resp,decodedPayload);				
 				}
 				else{
 					//look for it in the Htt-Content
+					log.info("Payload Parameter NOT specified - calling: processRawDonationRequestData(...)");
 					processRawDonationRequestData(req,resp);
 				}
 			}
 			catch(IOException ioe){
 				ioe.printStackTrace();
-				writeOutput(resp," Error: There were issues procesin your donation request");
+				log.severe(" Error: There were issues procesin your donation request: \n "+ioe.getLocalizedMessage());
 			}
 		
 	}
@@ -58,7 +64,7 @@ public class MakeDonationRequest extends HttpServlet{
 	 */
 	private void processRawDonationRequestData(HttpServletRequest request, HttpServletResponse resp){
 		
-		System.out.println("processRawDonationOfferData(...)");
+		log.info("processRawDonationRequestData(...)");
 		
 		StringBuffer rawData = new StringBuffer();
 		  String line = null;
@@ -68,16 +74,16 @@ public class MakeDonationRequest extends HttpServlet{
 			  		rawData.append(line);
 			  	}
 			  
-			  	System.out.println("processRawDonationOfferData(...) DATA = \n"+rawData);
+			  	log.info("processRawDonationOfferData(...) DATA = \n"+rawData);
 			  		
 		  } catch (Exception e) { e.printStackTrace(); }
 
 		  if(rawData.length()>0){
 			  try { doRequest(resp, rawData.toString()); } 
-			  catch (IOException e) { e.printStackTrace(); }
+			  catch (IOException e) { log.severe("Error While Reading RawData Payload: "+e.getLocalizedMessage()); e.printStackTrace(); }
 		  }
 		  else{
-			  System.err.println("The data stream is empty - no data received");
+			  log.severe("The data stream is empty - no data received");
 		  }
 	}
 	
@@ -138,6 +144,7 @@ public class MakeDonationRequest extends HttpServlet{
         response.setCharacterEncoding("UTF-8");
         try{
         	Writer outputWriter = response.getWriter();
+        	log.info("Returning :: "+jsonResponse);
         	outputWriter.write(jsonResponse);
         }
         catch(IOException ioe){

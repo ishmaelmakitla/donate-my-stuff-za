@@ -3,11 +3,13 @@ package org.rhok.pta.donate;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -36,12 +38,16 @@ import com.google.gson.JsonObject;
  */
 @SuppressWarnings("serial")
 public class DonationOffers extends HttpServlet{
+	
+	private static final Logger log = Logger.getLogger(DonationOffers.class.getSimpleName()); 
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 		resp.setContentType("application/json");		
 		
 		//here we use the UserService to authenticate the user (not sure how this will work with Android clients?)
 		
         String	name = req.getParameter("donorid");              	
+        log.info("doGet (...) : name = "+name);
         
         //we need to process the get request here...
         List<Entity> offers = getDonationOffers(name);
@@ -57,7 +63,7 @@ public class DonationOffers extends HttpServlet{
 	 * @return
 	 */
 	private List<Entity> getDonationOffers(String donorId){
-		
+		 log.info("getDonationOffers (Donor-ID = "+donorId+")");
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();     
 		Query query = new Query("DonationOffer").addSort("date", Query.SortDirection.DESCENDING);
 		
@@ -117,6 +123,8 @@ public class DonationOffers extends HttpServlet{
         	//add to list
         	offers.add(donationOffer);
         	
+        	 log.info("convertFromEntities (...) Offers = \n "+Arrays.asList(offers).toString());
+        	
         }
 		return offers;
 	}
@@ -148,7 +156,7 @@ public class DonationOffers extends HttpServlet{
 	 */
 	private void writeOutput(HttpServletResponse response,String output){
 		//send back JSON response
-        
+		 log.info("writeOutput()...returning : "+output);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         try{
@@ -156,7 +164,7 @@ public class DonationOffers extends HttpServlet{
         	outputWriter.write(output);
         }
         catch(IOException ioe){
-        	
+        	log.severe(ioe.getLocalizedMessage());
         }
 	}
 }
