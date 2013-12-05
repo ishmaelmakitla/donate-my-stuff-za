@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+	<servlet>
+		<servlet-name>DonateMyStuff</servlet-name>
+		<servlet-class>org.rhok.pta.donate.DonateMyStuffServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DonateMyStuff</servlet-name>
+		<url-pattern>/donatemystuff</url-pattern>
+	</servlet-mapping>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+	
+	<!-- Servlet for Retrieving Donation Offers -->
+	<servlet>
+		<servlet-name>DonationOffers</servlet-name>
+		<servlet-class>org.rhok.pta.donate.DonationOffers</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DonationOffers</servlet-name>
+		<url-pattern>/donationoffers</url-pattern>
+	</servlet-mapping>
+	
+	<!-- Servlet for Retrieving  Donation Requests-->
+	<servlet>
+		<servlet-name>DonationRequests</servlet-name>
+		<servlet-class>org.rhok.pta.donate.DonationRequests</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DonationRequests</servlet-name>
+		<url-pattern>/donationrequests</url-pattern>
+	</servlet-mapping>
+	<!-- Servlet for Making Donation Requests -->
+	<servlet>
+		<servlet-name>MakeDonationRequest</servlet-name>
+		<servlet-class>org.rhok.pta.donate.MakeDonationRequest</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MakeDonationRequest</servlet-name>
+		<url-pattern>/makedonationrequest</url-pattern>
+	</servlet-mapping>
+	
+	<!-- Servlet for Making Donation Offers -->
+	<servlet>
+		<servlet-name>MakeDonationOffer</servlet-name>
+		<servlet-class>org.rhok.pta.donate.MakeDonationOffer</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>MakeDonationOffer</servlet-name>
+		<url-pattern>/makedonationoffer</url-pattern>
+	</servlet-mapping>	
+	<!-- Donor-Beneficiary-Register Servlet -->	
+	<servlet>
+		<servlet-name>Register</servlet-name>
+		<servlet-class>org.rhok.pta.donate.Register</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Register</servlet-name>
+		<url-pattern>/register</url-pattern>
+	</servlet-mapping>	
+</web-app>
