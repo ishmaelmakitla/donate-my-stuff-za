@@ -1,4 +1,4 @@
-package org.rhok.pta.donate;
+package org.rhok.pta.donate.servlets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.rhok.pta.donate.models.DonationOffer;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -60,7 +62,7 @@ public class MakeDonationOffer extends HttpServlet{
 	private void processRawDonationOfferData(HttpServletRequest request, HttpServletResponse resp){
 		
 		log.info("processRawDonationOfferData(...)");
-		
+		String decodedPayload = "";
 		StringBuffer rawData = new StringBuffer();
 		  String line = null;
 		  try {
@@ -68,13 +70,13 @@ public class MakeDonationOffer extends HttpServlet{
 			  	while ((line = reader.readLine()) != null){
 			  		rawData.append(line);
 			  	}
-			  
-			  	log.info("processRawDonationOfferData(...) DATA = \n"+rawData);
+			  	decodedPayload = URLDecoder.decode(rawData.toString(), "UTF-8");
+				log.info("processRawDonationOfferData(...):: Payload Parameter (DECODED) = "+decodedPayload);			  
 			  		
 		  } catch (Exception e) { e.printStackTrace(); }
 
 		  if(rawData.length()>0){
-			  try { doOffer(resp, rawData.toString()); } 
+			  try { doOffer(resp, decodedPayload); } 
 			  catch (JSONException e) { e.printStackTrace(); }
 		  }
 		  else{
@@ -134,17 +136,16 @@ public class MakeDonationOffer extends HttpServlet{
 	 */
 	private void writeOutput(HttpServletResponse response,String output){
 		//send back JSON response
-        String jsonResponse = new Gson().toJson(output);
-       
+        
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         try{
         	Writer outputWriter = response.getWriter();
-        	 log.info("Returning :: "+jsonResponse);
-        	outputWriter.write(jsonResponse);
+        	 log.info("Returning :: "+output);
+        	outputWriter.write(output);
         }
         catch(IOException ioe){
-        	
+        	 log.severe("Error returning response to client..."+ioe.getLocalizedMessage());
         }
 	}
 	

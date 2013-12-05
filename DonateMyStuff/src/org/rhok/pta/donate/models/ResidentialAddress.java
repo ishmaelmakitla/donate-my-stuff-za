@@ -1,4 +1,4 @@
-package org.rhok.pta.donate;
+package org.rhok.pta.donate.models;
 
 import org.mortbay.util.ajax.JSONObjectConvertor;
 

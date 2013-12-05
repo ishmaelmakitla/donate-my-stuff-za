@@ -1,9 +1,10 @@
-package org.rhok.pta.donate;
+package org.rhok.pta.donate.models;
 
 import java.io.Serializable;
 import java.util.UUID;
 
-import org.rhok.pta.donate.DonateMyStuffUtils.DonatedItemType;
+import org.rhok.pta.donate.utils.DonateMyStuffUtils;
+import org.rhok.pta.donate.utils.DonateMyStuffUtils.DonatedItemType;
 
 import com.google.gson.JsonObject;
 /**

@@ -1,8 +1,8 @@
-package org.rhok.pta.donate;
+package org.rhok.pta.donate.models;
 
 import java.util.UUID;
 
-import org.rhok.pta.donate.DonateMyStuffUtils.RoleType;
+import org.rhok.pta.donate.utils.DonateMyStuffUtils.RoleType;
 
 /**
  * This is a Registration Request and it maps the JSON document the user will be submitting for registration

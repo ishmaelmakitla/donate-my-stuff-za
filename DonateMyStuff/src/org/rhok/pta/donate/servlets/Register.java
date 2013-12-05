@@ -1,4 +1,4 @@
-package org.rhok.pta.donate;
+package org.rhok.pta.donate.servlets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,6 +10,11 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.rhok.pta.donate.models.RegistrationRequest;
+import org.rhok.pta.donate.models.ResidentialAddress;
+import org.rhok.pta.donate.utils.DonateMyStuffConstants;
+import org.rhok.pta.donate.utils.DonateMyStuffUtils;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;

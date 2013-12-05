@@ -4,14 +4,7 @@ xmlns="http://java.sun.com/xml/ns/javaee"
 xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
-	<servlet>
-		<servlet-name>DonateMyStuff</servlet-name>
-		<servlet-class>org.rhok.pta.donate.DonateMyStuffServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>DonateMyStuff</servlet-name>
-		<url-pattern>/donatemystuff</url-pattern>
-	</servlet-mapping>
+	
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
@@ -19,7 +12,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<!-- Servlet for Retrieving Donation Offers -->
 	<servlet>
 		<servlet-name>DonationOffers</servlet-name>
-		<servlet-class>org.rhok.pta.donate.DonationOffers</servlet-class>
+		<servlet-class>org.rhok.pta.donate.servlets.DonationOffers</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>DonationOffers</servlet-name>
@@ -29,7 +22,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<!-- Servlet for Retrieving  Donation Requests-->
 	<servlet>
 		<servlet-name>DonationRequests</servlet-name>
-		<servlet-class>org.rhok.pta.donate.DonationRequests</servlet-class>
+		<servlet-class>org.rhok.pta.donate.servlets.DonationRequests</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>DonationRequests</servlet-name>
@@ -38,7 +31,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<!-- Servlet for Making Donation Requests -->
 	<servlet>
 		<servlet-name>MakeDonationRequest</servlet-name>
-		<servlet-class>org.rhok.pta.donate.MakeDonationRequest</servlet-class>
+		<servlet-class>org.rhok.pta.donate.servlets.MakeDonationRequest</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>MakeDonationRequest</servlet-name>
@@ -48,7 +41,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<!-- Servlet for Making Donation Offers -->
 	<servlet>
 		<servlet-name>MakeDonationOffer</servlet-name>
-		<servlet-class>org.rhok.pta.donate.MakeDonationOffer</servlet-class>
+		<servlet-class>org.rhok.pta.donate.servlets.MakeDonationOffer</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>MakeDonationOffer</servlet-name>
@@ -57,7 +50,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<!-- Donor-Beneficiary-Register Servlet -->	
 	<servlet>
 		<servlet-name>Register</servlet-name>
-		<servlet-class>org.rhok.pta.donate.Register</servlet-class>
+		<servlet-class>org.rhok.pta.donate.servlets.Register</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Register</servlet-name>
@@ -66,11 +59,21 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	
 	<!--  login servlet  -->
 	<servlet>
-		<servlet-name>UserID</servlet-name>
-		<servlet-class>org.rhok.pta.donate.UserID</servlet-class>
+		<servlet-name>Login</servlet-name>
+		<servlet-class>org.rhok.pta.donate.servlets.Login</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>UserID</servlet-name>
+		<servlet-name>Login</servlet-name>
 		<url-pattern>/login</url-pattern>
 	</servlet-mapping>	
+	
+	<!--  Bidding servlet  -->
+	<servlet>
+		<servlet-name>Bid</servlet-name>
+		<servlet-class>org.rhok.pta.donate.servlets.Bid</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Bid</servlet-name>
+		<url-pattern>/bid</url-pattern>
+	</servlet-mapping>
 </web-app>

@@ -1,4 +1,4 @@
-package org.rhok.pta.donate;
+package org.rhok.pta.donate.servlets;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -14,6 +14,9 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.rhok.pta.donate.models.DonatedItem;
+import org.rhok.pta.donate.models.DonationOffer;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -64,6 +67,7 @@ public class DonationOffers extends HttpServlet{
 	 */
 	private List<Entity> getDonationOffers(String donorId){
 		 log.info("getDonationOffers (Donor-ID = "+donorId+")");
+		 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();     
 		Query query = new Query("DonationOffer").addSort("date", Query.SortDirection.DESCENDING);
 		

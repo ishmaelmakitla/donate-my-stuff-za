@@ -1,4 +1,4 @@
-package org.rhok.pta.donate;
+package org.rhok.pta.donate.servlets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +11,9 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.rhok.pta.donate.models.LoginRequest;
+import org.rhok.pta.donate.utils.DonateMyStuffConstants;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -25,6 +28,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 /**
+ * This is the servlet used to look-up the user-id of a user given the username and password.
+ * If a match is found, the user-id is returned, otherwise error message is returned. Both these responses are in JSON format.
+ * 
+ * In later versions, this servlet will use secure communication and will support encryption.
  * 
  * @author Ishmael Makitla
  *         GDG Pretoria, RHoK Pretoria
@@ -33,9 +40,9 @@ import com.google.gson.JsonObject;
  *
  */
 @SuppressWarnings("serial")
-public class UserID extends HttpServlet{
+public class Login extends HttpServlet{
 	
-	private static final Logger log = Logger.getLogger(UserID.class.getSimpleName());
+	private static final Logger log = Logger.getLogger(Login.class.getSimpleName());
 	
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {

@@ -1,4 +1,4 @@
-package org.rhok.pta.donate;
+package org.rhok.pta.donate.models;
 /**
  * Model for Login Request. It bears the user name and password which are used to authenticate authorize the user
  * 

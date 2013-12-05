@@ -1,6 +1,8 @@
-package org.rhok.pta.donate;
+package org.rhok.pta.donate.utils;
 
 import java.lang.reflect.Type;
+
+import org.rhok.pta.donate.models.DonationOffer;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

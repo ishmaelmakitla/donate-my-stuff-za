@@ -1,4 +1,4 @@
-package org.rhok.pta.donate;
+package org.rhok.pta.donate.utils;
 
 import com.google.gson.JsonObject;
 

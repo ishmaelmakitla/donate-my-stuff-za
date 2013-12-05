@@ -1,4 +1,4 @@
-package org.rhok.pta.donate;
+package org.rhok.pta.donate.utils;
 
 public class DonateMyStuffConstants {
 
@@ -24,4 +24,10 @@ public class DonateMyStuffConstants {
 	
 	public static final int REGISTRATION_SUCCESSFULL = 400;
 	public static final int REGISTRATION_FAILED = 401;
+	/**
+	 * General Purpose Status Codes
+	 */
+	public static final int OK = 0;
+	public static final int ERROR=1;
+	public static final int WARNING =2;
 }
