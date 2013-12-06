@@ -142,13 +142,16 @@ public class DonationOffers extends HttpServlet{
 		String doc = "";
 		
 		Gson gson =  new Gson();
+		JsonObject offersJsonObject = new JsonObject();
 		JsonArray jaOffers = new JsonArray();
 				
 		for(DonationOffer anOffer: offers){	
 			jaOffers.add(gson.toJsonTree(anOffer, DonationOffer.class));		
 		}
 		
-		doc = jaOffers.toString();
+		offersJsonObject.add("offers", jaOffers);
+		
+		doc = offersJsonObject.toString();
 		
 		return doc;
 	}

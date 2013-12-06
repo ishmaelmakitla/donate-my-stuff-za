@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
@@ -13,12 +15,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.rhok.pta.donate.models.DonationBid;
+import org.rhok.pta.donate.models.DonationOffer;
 import org.rhok.pta.donate.utils.DonateMyStuffConstants;
 import org.rhok.pta.donate.utils.DonateMyStuffUtils;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -29,6 +33,8 @@ import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * This Servlet is used to handle requests for bids. A bid is placed by a beneficiary in response to a donation-offer.
@@ -67,6 +73,101 @@ public class Bid extends HttpServlet{
 			processDonationBid(bid,response);
 		}
 		
+	}
+	
+	/**
+	 * Method for retrieving list of Bid made by a particular bidder/beneficiary
+	 */
+	public void doGet(HttpServletRequest request, HttpServletResponse resp) throws IOException {
+		String beneficiary_id = request.getParameter("beneficiary_id");
+		log.info("doGet::beneficiary_id Parameter = "+beneficiary_id);
+		if(beneficiary_id != null && !beneficiary_id.trim().isEmpty()){
+			//get bids Entities
+			List<Entity> bidEntities = getUserBids(getServletInfo());
+			if(bidEntities !=null && bidEntities.size() >0){
+				//convert the entities into DonationBid objects
+				List<DonationBid> bids = convertFromEntities(bidEntities);
+				String bidsJsonDoc = asJsonDocument(bids);
+				//set the JSON document over
+				writeOutput(resp,bidsJsonDoc);
+			}
+		}
+	}
+	
+	/**
+	 * This method retrieves a list of Bids made by a user.
+	 * 
+	 * @param beneficiary_id - ID of the user as beneficiary who made them
+	 * @return
+	 */
+	private List<Entity> getUserBids(String beneficiary_id){
+		List<Entity> bids = null;
+		
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();     
+		Query query = new Query("DonationBid").addSort("date", Query.SortDirection.DESCENDING);
+		
+		if(beneficiary_id != null && !beneficiary_id.trim().isEmpty()){
+			Filter beneficiaryIdFilter = new Query.FilterPredicate("beneficiary", FilterOperator.EQUAL, beneficiary_id);
+			query.setFilter(beneficiaryIdFilter);
+		}
+		           
+		bids = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(20));
+		
+		return bids;
+	}
+	
+	/**
+	 * 
+	 * @param donationBids
+	 * @return
+	 */
+	private List<DonationBid> convertFromEntities(List<Entity> bidEntities){
+		List<DonationBid> bids = new ArrayList<DonationBid>();
+		
+		for(Entity bid: bidEntities){
+			
+			//record bid date as NOW
+			Date bidDate       = (Date)bid.getProperty("date");
+			// bid_id
+			String bidId       = (String)bid.getProperty("bid_id");
+			// bidder
+			String beneficiary = (String)bid.getProperty("beneficiary");
+			// offer-id
+			String offerId     = (String)bid.getProperty("offer_id");
+			//request-id
+			String requestId   = (String)bid.getProperty("request_id");
+			
+			DonationBid bidObject = new DonationBid(bidId,offerId,requestId,beneficiary); 
+			bidObject.setDate(bidDate);
+			
+			//add to list of bids for this user
+			bids.add(bidObject);
+		}
+		
+		return bids;
+	}
+	
+	/**
+	 * Method used to convert a list of DonationBids into a JSON document
+	 * @param bids - the bids made by this user as beneficiary
+	 * @return
+	 */
+	private String asJsonDocument(List<DonationBid> bids){
+		String doc = "";
+		
+		Gson gson =  new Gson();
+		JsonObject bidsJsonObject = new JsonObject();
+		JsonArray jaBids = new JsonArray();
+				
+		for(DonationBid aBid: bids){	
+			jaBids.add(gson.toJsonTree(aBid, DonationBid.class));		
+		}
+		
+		bidsJsonObject.add("bids", jaBids);
+		
+		doc = bidsJsonObject.toString();
+		
+		return doc;
 	}
 
 	/**

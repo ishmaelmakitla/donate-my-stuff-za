@@ -33,6 +33,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * This is the Servlet for retrieving list of Donation Requests
@@ -146,12 +147,14 @@ public class DonationRequests extends HttpServlet {
 		String doc = "";
 		
 		Gson gson =  new Gson();
+		JsonObject requestsJsonObject = new JsonObject();
 		JsonArray jaOffers = new JsonArray();
 		for(DonationRequest anOffer: donationRequests){
 			jaOffers.add(gson.toJsonTree(anOffer, DonationRequest.class));		
 		}
 		
-		doc = jaOffers.toString();
+		requestsJsonObject.add("requests", jaOffers);
+		doc = requestsJsonObject.toString();
 		
 		return doc;
 	}

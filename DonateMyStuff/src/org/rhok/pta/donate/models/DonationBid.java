@@ -1,5 +1,6 @@
 package org.rhok.pta.donate.models;
 
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -14,11 +15,23 @@ public class DonationBid {
 	private String offerid;
 	private String requestid;
 	private String beneficiaryid;
+	private Date date;
 	
 	public DonationBid(){
 		this.id = UUID.randomUUID().toString();
 	}
+	
+	
 
+	public DonationBid(String id, String offerid, String requestid,String beneficiaryid) {
+		super();
+		this.id = id;
+		this.offerid = offerid;
+		this.requestid = requestid;
+		this.beneficiaryid = beneficiaryid;
+	}
+
+    
 	public String getOfferid() {
 		return offerid;
 	}
@@ -27,7 +40,19 @@ public class DonationBid {
 		this.offerid = offerid;
 	}
 	
-	
+		
+	public Date getDate() {
+		return date;
+	}
+
+
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+
+
 	public String getRequestid() {
 		return requestid;
 	}
