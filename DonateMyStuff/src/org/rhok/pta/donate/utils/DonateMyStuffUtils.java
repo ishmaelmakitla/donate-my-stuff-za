@@ -1,5 +1,14 @@
 package org.rhok.pta.donate.utils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
+import java.net.URLDecoder;
+import java.util.logging.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.google.gson.JsonObject;
 
 /**
@@ -8,6 +17,8 @@ import com.google.gson.JsonObject;
  *
  */
 public class DonateMyStuffUtils {
+	
+	private static final Logger log = Logger.getLogger(DonateMyStuffUtils.class.getSimpleName());
 
 	public enum DonateMyStuffType {OFFER, REQUEST;
 	public static DonateMyStuffType toDonateMyStuffType(String type){
@@ -58,6 +69,50 @@ public class DonateMyStuffUtils {
 		responseJSON.addProperty("message", message);
 		response = responseJSON.toString();
 		return response;
+	}
+	
+	 /**
+	 * For content that was sent with a custom encoding. This method uses the Reader to read the raw content.
+	 * @param request
+	 * @param resp
+	 */
+	public static String getRawDataPayload(HttpServletRequest request, HttpServletResponse resp){
+		
+		log.info("getRawDataPayload(...)");
+		  String rawDataString = null;
+		  StringBuffer rawData = new StringBuffer();
+		  String line = null;
+		  try {
+			  	BufferedReader reader = request.getReader();
+			  	while ((line = reader.readLine()) != null){
+			  		rawData.append(line);
+			  	}
+			  	
+			  	rawDataString = URLDecoder.decode(rawData.toString(), "UTF-8");
+			  	log.info("processRawDonationOfferData(...) DATA (Decoded) = \n"+rawDataString);
+			  		
+		  } catch (Exception e) { log.severe("ERROR Executing getRawDataPayload() \n"+e.getLocalizedMessage()); e.printStackTrace(); }
+		  
+		  return rawDataString;
+	}
+	
+	/**
+	 * This method is used to write the output (JSON)
+	 * @param response - response object of the incoming HTTP request
+	 * @param output - message to be out-put
+	 */
+	public static void writeOutput(HttpServletResponse response,String output){
+		//send back JSON response       
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        try{
+        	 Writer outputWriter = response.getWriter();
+        	 log.info("Returning :: "+output);
+        	 outputWriter.write(output);
+        }
+        catch(IOException ioe){
+        	
+        }
 	}
 	
 	

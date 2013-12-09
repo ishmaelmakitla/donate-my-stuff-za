@@ -85,80 +85,85 @@ public class DonateMyStuffHttpPushNotifier {
         }
     };
     
-    
+    /**
+     * Method for pushing the notification messages to Android devices.		
+     * @param registrationIds
+     * @param notificationMessage
+     * @throws IOException
+     */
+	public void pushMessage(NotificationMessage notificationMessage) throws IOException{
+	    
+	    //get JSON version of the notification-content
+	    JsonObject jsonGCMMessage = jsonify(notificationMessage.getRecipients(), notificationMessage.getMessage());	 
+	    
+	    pushMessage(jsonGCMMessage, gcmHttpFutureCallBack);
+	    
+	}
 	
 	/**
-	 * This method is used to push the retrieved tweets to the ARTIST Media Application Server
+	 * This method is used to push notification to Android devices...the JSON Object is formatted according to
+	 * GCM specifications for GCM HTTP
 	 * @throws IOException 
 	 */
    
-	private void pushMessage(List<String> registrationIds, String notificationMessage) throws IOException{
-		
-	    HttpPost gcmMessagePushPostRequest = new HttpPost(GCM_SERVER_SEND_URL);	
-	    
-	    //setting the headers as per http://developer.android.com/google/gcm/http.html
-	    gcmMessagePushPostRequest.setHeader(GCM_CONTENT_TYPE_HEADER,"application/json");
-	    gcmMessagePushPostRequest.setHeader(GCM_HEADER_AUTHORIZATION, "key="+GCM_APPLICATION_KEY);
-	    
-	    //get JSON version of the notification-content
-	    JsonObject jsonGCMMessage = jsonify(registrationIds, notificationMessage);
-	    
-	    //now put the JSON as body of the POST request	    
-	    HttpEntity entity = null;
-		try {
-			entity = new StringEntity(jsonGCMMessage.toString());
-		} catch (UnsupportedEncodingException e) {
-			log.severe("Error creating JSON String Entity..."+e.getLocalizedMessage());
-		}
-		
-		if(entity ==null){
-			//cannot sent empty content...
-			log.severe("Error creating JSON String Entity...Aborting: Cannot Send Empty Message");
-			//write error back to avoid client-time-out?
-			return;
-		}
-		
-		//if all is well, set the content body..		
-	    gcmMessagePushPostRequest.setEntity(entity);
-	    //set connection config
-	    RequestConfig requestConfig = RequestConfig.custom()
-	            .setSocketTimeout(3000)
-	            .setConnectTimeout(3000).build();
-	   	    
-	    CloseableHttpAsyncClient httpclient = HttpAsyncClients.custom()
-	            .setDefaultRequestConfig(requestConfig)	            
-	            .build();
-	   try{ 
-	        httpclient.start();
-	        httpclient.execute(gcmMessagePushPostRequest,gcmHttpFutureCallBack);
-	   }
-	   finally{
-		   httpclient.close();
-		   log.fine("Done...");
-	   }
+	public static void pushMessage(JsonObject notification, FutureCallback<HttpResponse> callback) throws IOException{
+		 HttpPost gcmMessagePushPostRequest = new HttpPost(GCM_SERVER_SEND_URL);	
+		    
+		    //setting the headers as per http://developer.android.com/google/gcm/http.html
+		    gcmMessagePushPostRequest.setHeader(GCM_CONTENT_TYPE_HEADER,"application/json");
+		    gcmMessagePushPostRequest.setHeader(GCM_HEADER_AUTHORIZATION, "key="+GCM_APPLICATION_KEY);
+		    
+		  //now put the JSON as body of the POST request	    
+		    HttpEntity entity = null;
+			try {
+				entity = new StringEntity(notification.toString());
+			} catch (UnsupportedEncodingException e) {
+				log.severe("Error creating JSON String Entity..."+e.getLocalizedMessage());
+			}
+			
+			if(entity ==null){
+				//cannot sent empty content...
+				log.severe("Error creating JSON String Entity...Aborting: Cannot Send Empty Message");
+				//write error back to avoid client-time-out?
+				return;
+			}
+			
+			//if all is well, set the content body..		
+		    gcmMessagePushPostRequest.setEntity(entity);
+		    //set connection config
+		    RequestConfig requestConfig = RequestConfig.custom()
+		            .setSocketTimeout(3000)
+		            .setConnectTimeout(3000).build();
+		   	    
+		    CloseableHttpAsyncClient httpclient = HttpAsyncClients.custom()
+		            .setDefaultRequestConfig(requestConfig)	            
+		            .build();
+		   try{ 
+		        httpclient.start();
+		        httpclient.execute(gcmMessagePushPostRequest,callback);
+		   }
+		   finally{
+			   httpclient.close();
+			   log.fine("Done...");
+		   }
 	}
+	
 	/**
-	 * Given a list of registration-IDs and a message, this method create a JSON object as per:
-	 * http://developer.android.com/google/gcm/http.html
-	 * @param registrationIds
-	 * @param notificationMessage
-	 * @return
+	 * Method that takes a String Array...
 	 */
-	private JsonObject jsonify(List<String> registrationIds, String notificationMessage){
+	public static JsonObject jsonify(String[] registrationIds, String notificationMessage){
 		    Gson gson = new Gson();
 		    JsonObject jsonGCMMessage = new JsonObject();
 		    
 		    //array of registration-ids
 		    JsonArray jaRegistrationIds = new JsonArray();
-		    for(String regId: registrationIds){
-		    	jaRegistrationIds.add( gson.toJsonTree(regId, String.class));
-		    }
-		    
+		    jaRegistrationIds.add( gson.toJsonTree(registrationIds, String[].class));		    	
+		    		    
 		    jsonGCMMessage.add("data", gson.toJsonTree(notificationMessage, String.class));	    
 		    jsonGCMMessage.add("registration_ids", jaRegistrationIds);
-		    
-		    
+		    		    
 		    return jsonGCMMessage;
 	}
+	
 	
 }
