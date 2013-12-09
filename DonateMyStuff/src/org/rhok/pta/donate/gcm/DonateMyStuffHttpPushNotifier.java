@@ -52,8 +52,8 @@ import com.sun.xml.internal.ws.api.message.Headers;
 public class DonateMyStuffHttpPushNotifier {
 	
 	private static final Logger log = Logger.getLogger(DonateMyStuffHttpPushNotifier.class.getSimpleName());
-	private static final String GCM_APPLICATION_KEY="AIzaSyD7s6lgYnKNqJlW63yqOloUsRxtfCREpl0";
-	private static final String GCM_APPLICATION_ID = "881964398257";
+	private static final String GCM_APPLICATION_KEY="my-app-key-here";
+	private static final String GCM_APPLICATION_ID = "project-id-here";
 	private static final String GCM_SERVER_SEND_URL ="https://android.googleapis.com/gcm/send";
 	private static final String GCM_HEADER_AUTHORIZATION = "Authorization";
 	private static final String GCM_CONTENT_TYPE_HEADER = "application/json";
