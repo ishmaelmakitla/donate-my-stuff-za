@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.rhok.pta.donate.gcm.PushNotificationRegistration;
 import org.rhok.pta.donate.models.RegistrationRequest;
 import org.rhok.pta.donate.models.ResidentialAddress;
 import org.rhok.pta.donate.utils.DonateMyStuffConstants;
@@ -23,6 +24,8 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * This is the Servlet that handles registrations. The registration is done by the public with either a donor role or
@@ -36,6 +39,8 @@ import com.google.gson.Gson;
  *
  */
 public class Register extends HttpServlet{
+	
+	private static final long serialVersionUID = 7097392428548590292L;
 	
 	private static final Logger log = Logger.getLogger(Register.class.getSimpleName());
 	
@@ -57,7 +62,7 @@ public class Register extends HttpServlet{
 				       }
 				   else{
 					     log.severe("Was Unable To Deserialize POST-Data :: "+decodedPayload);
-					     writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, "Errors Deserializing the Registartion JSON"));
+					     DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, "Errors Deserializing the Registartion JSON"));
 				       }
 				  
 			  }
@@ -84,7 +89,7 @@ public class Register extends HttpServlet{
 			}
 			else{
 				log.severe("Errors Deserializing the Registartion JSON");
-				writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, "Errors Deserializing the Registartion JSON"));
+				DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, "Errors Deserializing the Registartion JSON"));
 			}
 		}
 		
@@ -107,7 +112,7 @@ public class Register extends HttpServlet{
 			  		rawData.append(line);
 			  	}
 			  
-			  	log.info("processRawRegisterData(...) DATA = \n"+rawData);
+			 log.info("processRawRegisterData(...) DATA = \n"+rawData);
 			  		
 		  } catch (Exception e) { e.printStackTrace(); }
 
@@ -123,14 +128,14 @@ public class Register extends HttpServlet{
 			  			else{
 			  				String msg = "Errors Deserializing the Registartion JSON";
 			  				log.severe(msg);
-			     			writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, msg));
+			  				DonateMyStuffUtils.writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, msg));
 			  			}
 			  }
 			  catch(IOException ioe){ log.severe("Error Processing Raw Register Data : "+ioe.getLocalizedMessage()); }
 		  }
 		  else{
 			  log.severe("The data stream is empty - no data received");
-			  writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, "Registration Failed"));
+			  DonateMyStuffUtils.writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, "Registration Failed"));
 		  }
 	}
 	
@@ -185,39 +190,61 @@ public class Register extends HttpServlet{
         registrationRequest.setProperty("creation_date", date);      
         
         //put into data store
+        String result = "Registration Successful";
         try{
         	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         	//save the registration in the db
             datastore.put(registrationRequest);
-            writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_SUCCESSFULL, "Registration Successful"));
+            
+            
+            //now check if the GCM registration  was part of this registration as well...
+            PushNotificationRegistration gcmRegistration = registration.getGcmregistration();
+            if(gcmRegistration !=null){
+            	//do GCM_Registration
+            	Key newEntryKey = doGCMRegistration(gcmRegistration, response);
+            	if(newEntryKey !=null){
+        			result += ",Registration on GCM Server (DMS) Successful.";	
+        		}
+        		else{
+        			result += ", Could not Process the GCM Registration on Server (DMS).";	
+        		}	
+            }
+            DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_SUCCESSFULL, result));
         }
         catch(Exception e){
         	e.printStackTrace();
         	log.severe("Error Registering: "+e.getLocalizedMessage());
-        	writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, "Registration Failed"));
+        	result = "Registration Failed";
+        	DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, result));
         }
         
 	}
 	
 	/**
-	 * This method is used to write the output (JSON)
-	 * @param response - response object of the incoming HTTP request
-	 * @param output - message to be out-put
+	 * Utility method for storing the registration details for this beneficiary/donor as part of GCM-Push Notification Registration
+	 * 
+	 * @param registration
 	 */
-	private void writeOutput(HttpServletResponse response,String output){
-		//send back JSON response
-        String jsonResponse = new Gson().toJson(output);
-       
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        try{
-        	Writer outputWriter = response.getWriter();
-        	log.info("Returning :: "+jsonResponse);
-        	outputWriter.write(jsonResponse);
-        }
-        catch(IOException ioe){
-        	
-        }
+	private Key doGCMRegistration(PushNotificationRegistration registration, HttpServletResponse response){
+		
+		//at this stage everything went well...
+		Key gcmRegistrationKey = KeyFactory.createKey("PushNotificationRegistration", registration.getRegistration_id());
+		Entity gcmRegistrationEntity = new Entity("PushNotificationRegistration", gcmRegistrationKey);
+		
+		//record Registration date as NOW (on the GCM Server)
+		gcmRegistrationEntity.setProperty("date", (new Date()));
+		//set reg_id
+		gcmRegistrationEntity.setProperty("registration_id",registration.getRegistration_id());
+		//set beneficiary/donor ID as dms_id
+		gcmRegistrationEntity.setProperty("dms_id", registration.getDms_id());
+		//set beneficiary/donor name as handle
+		gcmRegistrationEntity.setProperty("handle", registration.getHandle());
+				
+		//save Registartion into the Datastore			
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();            
+        Key newEntryKey = datastore.put(gcmRegistrationEntity);
+		
+		return newEntryKey;
 	}
 
 }

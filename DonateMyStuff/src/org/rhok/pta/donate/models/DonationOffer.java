@@ -22,6 +22,7 @@ public class DonationOffer {
     Date offerdate;
     DonatedItem item;
     int quantity = 0;
+    boolean deliver;
     
     public DonationOffer(){
     	//
@@ -76,6 +77,16 @@ public class DonationOffer {
 
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
+	}
+	
+	
+
+	public boolean isDeliver() {
+		return deliver;
+	}
+
+	public void setDeliver(boolean deliver) {
+		this.deliver = deliver;
 	}
 
 	/**

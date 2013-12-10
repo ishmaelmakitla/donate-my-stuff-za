@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.rhok.pta.donate.models.DonationRequest;
+import org.rhok.pta.donate.utils.DonateMyStuffConstants;
+import org.rhok.pta.donate.utils.DonateMyStuffUtils;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -50,11 +52,12 @@ public class MakeDonationRequest extends HttpServlet{
 					//look for it in the Htt-Content
 					log.info("Payload Parameter NOT specified - calling: processRawDonationRequestData(...)");
 					processRawDonationRequestData(req,resp);
+					DonateMyStuffUtils.writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, " Payload Parameter NOT specified "));	
 				}
 			}
 			catch(IOException ioe){
-				ioe.printStackTrace();
 				log.severe(" Error: There were issues procesin your donation request: \n "+ioe.getLocalizedMessage());
+				DonateMyStuffUtils.writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, " Error: There were issues procesin your donation request: \n "+ioe.getLocalizedMessage()));	
 			}
 		
 	}
@@ -82,10 +85,14 @@ public class MakeDonationRequest extends HttpServlet{
 
 		  if(rawData.length()>0){
 			  try { doRequest(resp, rawData.toString()); } 
-			  catch (IOException e) { log.severe("Error While Reading RawData Payload: "+e.getLocalizedMessage()); e.printStackTrace(); }
+			  catch (IOException e) 
+			  { 
+				DonateMyStuffUtils.writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "Error While Reading RawData Payload: "+e.getLocalizedMessage()));				
+			  }
 		  }
 		  else{
 			  log.severe("The data stream is empty - no data received");
+			  DonateMyStuffUtils.writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "The data stream is empty - no data received."));	
 		  }
 	}
 	
@@ -118,39 +125,16 @@ public class MakeDonationRequest extends HttpServlet{
             donationRequest.setProperty("item_age_restriction", donationRequestObject.getRequestedDonationItem().getAgeRestriction());
             donationRequest.setProperty("item_gender", donationRequestObject.getRequestedDonationItem().getGenderCode());
             donationRequest.setProperty("donation_offer_id", donationRequestObject.getDonationOfferId());
-            
-            
+            donationRequest.setProperty("collect", donationRequestObject.getCollect());
+                        
             DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
             //save the request for donation
             datastore.put(donationRequest);
-            String message = "{\"status\": 200}";
-            writeOutput(response,message);
+            DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.OK, "Donation Request Has Been Processed."));	
         }
         else{
-        	String message = "{\"status\": 500}";
-            writeOutput(response,message);
+        	DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "Donation Request COULD NOT Be Processed."));	
         }    
         
-	}
-	
-	/**
-	 * This method is used to write the output (JSON)
-	 * @param response - response object of the incoming HTTP request
-	 * @param output - message to be out-put
-	 */
-	private void writeOutput(HttpServletResponse response,String output){
-		//send back JSON response
-        String jsonResponse = new Gson().toJson(output);
-        
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        try{
-        	Writer outputWriter = response.getWriter();
-        	log.info("Returning :: "+jsonResponse);
-        	outputWriter.write(jsonResponse);
-        }
-        catch(IOException ioe){
-        	
-        }
-	}
+	}	
 }

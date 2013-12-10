@@ -89,7 +89,7 @@ public class Bid extends HttpServlet{
 				List<DonationBid> bids = convertFromEntities(bidEntities);
 				String bidsJsonDoc = asJsonDocument(bids);
 				//set the JSON document over
-				writeOutput(resp,bidsJsonDoc);
+				DonateMyStuffUtils.writeOutput(resp,bidsJsonDoc);
 			}
 		}
 	}
@@ -206,7 +206,7 @@ public class Bid extends HttpServlet{
 	private void processDonationBid(DonationBid bid, HttpServletResponse response){
 		
 		if(bid == null){
-			writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "Could not Process the Bid. Deserialized Bid is NULL"));	
+			DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "Could not Process the Bid. Deserialized Bid is NULL"));	
 			return;
 		}
 		
@@ -240,14 +240,14 @@ public class Bid extends HttpServlet{
             Key newEntryKey = datastore.put(bidEntity);
             
 			if(newEntryKey !=null){
-				writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.OK, "Bidding for Donation Has Been Processed."));	
+				DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.OK, "Bidding for Donation Has Been Processed."));	
 			}
 			else{
-				writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "Could not Process the Bid."));	
+				DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "Could not Process the Bid."));	
 			}			
 		}
 		else{
-			 writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "ERROR - Bidding for Donation Could NOT Be Processed. Could not find Original Offer or Request"));
+			DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "ERROR - Bidding for Donation Could NOT Be Processed. Could not find Original Offer or Request"));
 		}
 		
 	}
@@ -312,12 +312,12 @@ public class Bid extends HttpServlet{
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         try{
-        	Writer outputWriter = response.getWriter();
+        	 Writer outputWriter = response.getWriter();
         	 log.info("Returning :: "+output);
         	outputWriter.write(output);
         }
         catch(IOException ioe){
-        	
+        	log.severe("Error Writing output JSON: "+ioe.getLocalizedMessage());
         }
 	}
 }

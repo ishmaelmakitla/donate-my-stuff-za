@@ -2,12 +2,18 @@ package org.rhok.pta.donate.models;
 
 import java.util.UUID;
 
+import org.rhok.pta.donate.gcm.PushNotificationRegistration;
 import org.rhok.pta.donate.utils.DonateMyStuffUtils.RoleType;
 
 /**
  * This is a Registration Request and it maps the JSON document the user will be submitting for registration
  * The class include a utility method for creating its JSON format.
- * @author IMakitla
+ * 
+ * Registration may optionally have GCM Registration payload with Key="gcm"
+ * @author Ishmael Makitla
+ *         GDG/RHoK Pretoria
+ *         2013
+ *         South Africa
  *
  */
 public class RegistrationRequest {
@@ -25,9 +31,12 @@ public class RegistrationRequest {
 	private int role = 1;
 	String type; 
 	
+	//optional property for GCM support
+	PushNotificationRegistration gcmregistration;
 	
 	public RegistrationRequest(){
-		//
+		//generate reg_id
+		this.registrationID = UUID.randomUUID().toString();
 	}
 
 
@@ -147,6 +156,18 @@ public class RegistrationRequest {
 
 	public void setAddress(ResidentialAddress address) {
 		this.address = address;
+	}
+
+
+	public PushNotificationRegistration getGcmregistration() {
+		return gcmregistration;
+	}
+
+
+	public void setGcmregistration(PushNotificationRegistration gcmregistration) {
+		this.gcmregistration = gcmregistration;
 	}	
+	
+	
 
 }

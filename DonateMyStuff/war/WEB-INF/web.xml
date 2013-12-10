@@ -9,7 +9,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
 	
-	<!-- Servlet for Retrieving Donation Offers -->
+	<!-- Servlet for Retrieving Donation Offers 1-->
 	<servlet>
 		<servlet-name>DonationOffers</servlet-name>
 		<servlet-class>org.rhok.pta.donate.servlets.DonationOffers</servlet-class>
@@ -19,7 +19,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<url-pattern>/donationoffers</url-pattern>
 	</servlet-mapping>
 	
-	<!-- Servlet for Retrieving  Donation Requests-->
+	<!-- Servlet for Retrieving  Donation Requests 2 -->
 	<servlet>
 		<servlet-name>DonationRequests</servlet-name>
 		<servlet-class>org.rhok.pta.donate.servlets.DonationRequests</servlet-class>
@@ -38,7 +38,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<url-pattern>/makedonationrequest</url-pattern>
 	</servlet-mapping>
 	
-	<!-- Servlet for Making Donation Offers -->
+	<!-- Servlet for Making Donation Offers 3-->
 	<servlet>
 		<servlet-name>MakeDonationOffer</servlet-name>
 		<servlet-class>org.rhok.pta.donate.servlets.MakeDonationOffer</servlet-class>
@@ -47,7 +47,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-name>MakeDonationOffer</servlet-name>
 		<url-pattern>/makedonationoffer</url-pattern>
 	</servlet-mapping>	
-	<!-- Donor-Beneficiary-Register Servlet -->	
+	<!-- Donor-Beneficiary-Register Servlet 4-->	
 	<servlet>
 		<servlet-name>Register</servlet-name>
 		<servlet-class>org.rhok.pta.donate.servlets.Register</servlet-class>
@@ -57,7 +57,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<url-pattern>/register</url-pattern>
 	</servlet-mapping>	
 	
-	<!--  login servlet  -->
+	<!--  login servlet  5-->
 	<servlet>
 		<servlet-name>Login</servlet-name>
 		<servlet-class>org.rhok.pta.donate.servlets.Login</servlet-class>
@@ -67,7 +67,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<url-pattern>/login</url-pattern>
 	</servlet-mapping>	
 	
-	<!--  Bidding servlet  -->
+	<!--  Bidding servlet  6-->
 	<servlet>
 		<servlet-name>Bid</servlet-name>
 		<servlet-class>org.rhok.pta.donate.servlets.Bid</servlet-class>
@@ -75,5 +75,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<servlet-mapping>
 		<servlet-name>Bid</servlet-name>
 		<url-pattern>/bid</url-pattern>
+	</servlet-mapping>
+	
+	<!-- Notify Servlet 7-->
+	<servlet>
+		<servlet-name>Notify</servlet-name>
+		<servlet-class>org.rhok.pta.donate.gcm.Notify</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Notify</servlet-name>
+		<url-pattern>/notify</url-pattern>
 	</servlet-mapping>
 </web-app>

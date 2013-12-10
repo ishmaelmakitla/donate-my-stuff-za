@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.rhok.pta.donate.models.LoginRequest;
 import org.rhok.pta.donate.utils.DonateMyStuffConstants;
+import org.rhok.pta.donate.utils.DonateMyStuffUtils;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -60,7 +61,7 @@ public class Login extends HttpServlet{
 		catch(IOException ioe){
 			ioe.printStackTrace();
 			log.severe("doGet:: Error Processing Login Request: "+ioe.getLocalizedMessage());
-			writeOutput(resp," Error: There were issues procesin your donation request");
+			DonateMyStuffUtils.writeOutput(resp,DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.LOGIN_FAILED," Error: There were issues processing your donation request ::"+ioe.getLocalizedMessage()));
 		}
 	}
 	/**
@@ -83,7 +84,7 @@ public class Login extends HttpServlet{
 		}
 		catch(IOException ioe){
 			log.severe("doPost:: Error Processing Login Request: "+ioe.getLocalizedMessage());
-			writeOutput(resp," Error: There were issues procesin your donation request");
+			DonateMyStuffUtils.writeOutput(resp,DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.LOGIN_FAILED," Error: There were issues processing your donation request::"+ioe.getLocalizedMessage()));
 		}
 	}
 	
@@ -134,15 +135,15 @@ public class Login extends HttpServlet{
 			log.info("User Found With ID:: "+userID);
 			
 			if(!userID.trim().isEmpty()){
-				writeOutput(response, asServerResponse(DonateMyStuffConstants.LOGIN_SUCCESSFULL, userID));
+				DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.LOGIN_SUCCESSFULL, userID));
 			}
 			else{
 				//user not found or login error
-				writeOutput(response, asServerResponse(DonateMyStuffConstants.LOGIN_FAILED, userID));
+				DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.LOGIN_FAILED, userID));
 			}			
 		}
 		else{
-			writeOutput(response, asServerResponse(DonateMyStuffConstants.LOGIN_FAILED, "Login Failed"));
+			DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.LOGIN_FAILED, "Login Failed"));
 		}
 	}
 	
@@ -174,40 +175,5 @@ public class Login extends HttpServlet{
 		
 		return user;
 	}
-	
-	/**
-	 * 
-	 * @param status
-	 * @param message
-	 * @return
-	 */
-	private String asServerResponse(int status, String message){
-		String response = "";
-		JsonObject responseJSON = new JsonObject();
-		responseJSON.addProperty("status", status);
-		responseJSON.addProperty("message", message);
-		response = responseJSON.toString();
-		return response;
-	}
 
-	
-	/**
-	 * This method is used to write the output (JSON)
-	 * @param response - response object of the incoming HTTP request
-	 * @param output - message to be out-put
-	 */
-	private void writeOutput(HttpServletResponse response,String output){
-		//send back JSON response
-        
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        try{
-        	Writer outputWriter = response.getWriter();
-        	log.info("Returning :: "+output);
-        	outputWriter.write(output);
-        }
-        catch(IOException ioe){
-        	
-        }
-	}
 }

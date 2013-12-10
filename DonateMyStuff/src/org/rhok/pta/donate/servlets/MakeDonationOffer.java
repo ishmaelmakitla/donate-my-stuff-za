@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.rhok.pta.donate.models.DonationOffer;
+import org.rhok.pta.donate.utils.DonateMyStuffConstants;
+import org.rhok.pta.donate.utils.DonateMyStuffUtils;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -51,6 +53,7 @@ public class MakeDonationOffer extends HttpServlet{
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				DonateMyStuffUtils.writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "Error Processing Your Donation Offer. "+e.getLocalizedMessage()));
 			}
 		
 	}
@@ -77,10 +80,10 @@ public class MakeDonationOffer extends HttpServlet{
 
 		  if(rawData.length()>0){
 			  try { doOffer(resp, decodedPayload); } 
-			  catch (JSONException e) { e.printStackTrace(); }
+			  catch (JSONException e) { e.printStackTrace(); DonateMyStuffUtils.writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "Error Processing Your Donation Offer. "+e.getLocalizedMessage()));}
 		  }
 		  else{
-			  log.severe("The data stream is empty - no data received");
+			  DonateMyStuffUtils.writeOutput(resp, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "The data stream is empty - no data received.")); 
 		  }
 	}
 	
@@ -114,39 +117,17 @@ public class MakeDonationOffer extends HttpServlet{
                 donationOffer.setProperty("item_age_restriction", donationOfferObject.getItem().getAgeRestriction());
                 donationOffer.setProperty("item_gender", donationOfferObject.getItem().getGenderCode());
                 donationOffer.setProperty("item_count",donationOfferObject.getQuantity());
-                message = "{\"status\": 200}";
+                donationOffer.setProperty("deliver",donationOfferObject.isDeliver());
         	}
         	        	
         	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
             //save the offer
             datastore.put(donationOffer);
-            
-            writeOutput(response,message);
+            DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.OK, "Donation Offer Has Been Processed."));           
         }
         else{
-        	 writeOutput(response,"{\"status\": 500}");
+        	 DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "Donation Offer COULD NOT Be Processed."));  
         }
         
-	}
-	
-	/**
-	 * This method is used to write the output (JSON)
-	 * @param response - response object of the incoming HTTP request
-	 * @param output - message to be out-put
-	 */
-	private void writeOutput(HttpServletResponse response,String output){
-		//send back JSON response
-        
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        try{
-        	Writer outputWriter = response.getWriter();
-        	 log.info("Returning :: "+output);
-        	outputWriter.write(output);
-        }
-        catch(IOException ioe){
-        	 log.severe("Error returning response to client..."+ioe.getLocalizedMessage());
-        }
-	}
-	
+	}	
 }
