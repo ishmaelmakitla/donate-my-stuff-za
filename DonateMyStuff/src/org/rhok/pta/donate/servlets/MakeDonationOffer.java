@@ -117,6 +117,7 @@ public class MakeDonationOffer extends HttpServlet{
                 donationOffer.setProperty("item_age_restriction", donationOfferObject.getItem().getAgeRestriction());
                 donationOffer.setProperty("item_gender", donationOfferObject.getItem().getGenderCode());
                 donationOffer.setProperty("item_count",donationOfferObject.getQuantity());
+                donationOffer.setProperty("item_type",donationOfferObject.getItem().getType());
                 donationOffer.setProperty("deliver",donationOfferObject.isDeliver());
         	}
         	        	

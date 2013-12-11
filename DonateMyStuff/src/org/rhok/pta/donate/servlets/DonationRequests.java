@@ -50,9 +50,11 @@ public class DonationRequests extends HttpServlet {
 		
 		// check if the user specified the requests-by-beneficiary
 		String beneficiaryId = req.getParameter("beneficiary");
+		String type = req.getParameter("type");
+		
         log.info("doGet(...) Beneficiary-ID = "+beneficiaryId);
 		// we need to process the get request here...
-		List<Entity> requests = getDonationOffers(beneficiaryId);
+		List<Entity> requests = getDonationOffers(beneficiaryId, type);
 		if(requests != null){
 			List<DonationRequest> donationRequests = convertFromEntities(requests);
 			String jsonDonationRequests = asJsonDocument(donationRequests);
@@ -70,7 +72,7 @@ public class DonationRequests extends HttpServlet {
 	 * DataStore - if beneficiaryId is not null, then only donation requests made by the specified beneficiary are retrieved, otherwise
 	 * all requests are retrieved.
 	 */
-	private List<Entity> getDonationOffers(String beneficiaryId) {
+	private List<Entity> getDonationOffers(String beneficiaryId, String type) {
 		List<Entity> offers = null;
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -78,10 +80,16 @@ public class DonationRequests extends HttpServlet {
 		Query query = new Query("DonationRequest");
 				
 		if (beneficiaryId != null && !beneficiaryId.trim().isEmpty()) {			
-			//filter is same as the WHERE CLAUSE
-			Filter donationRequestFilter = new Query.FilterPredicate("beneficiary", FilterOperator.EQUAL, beneficiaryId);
-			query.setFilter(donationRequestFilter);			
+			 //filter is same as the WHERE CLAUSE
+			 Filter donationRequestFilter = new Query.FilterPredicate("beneficiary", FilterOperator.EQUAL, beneficiaryId);
+			 query.setFilter(donationRequestFilter);			
 		   }
+		
+		//make a filter for donation-types (item) - must return donation requests for an item of a certain type (shoes, etc)
+			if(type != null && !type.trim().isEmpty()){
+				Filter itemTypeFilter = new Query.FilterPredicate("item_type", FilterOperator.EQUAL, type);
+				query.setFilter(itemTypeFilter);
+			}
 		
 		query.addSort("date", Query.SortDirection.DESCENDING);
 		offers = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(20));		

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.rhok.pta.donate.models.DonatedItem;
 import org.rhok.pta.donate.models.DonationOffer;
+import org.rhok.pta.donate.utils.DonateMyStuffUtils.DonatedItemType;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -49,11 +50,13 @@ public class DonationOffers extends HttpServlet{
 		
 		//here we use the UserService to authenticate the user (not sure how this will work with Android clients?)
 		
-        String	name = req.getParameter("donorid");              	
+        String	name = req.getParameter("donorid");  
+        String itemType = req.getParameter("type");
+        
         log.info("doGet (...) : name = "+name);
         
         //we need to process the get request here...
-        List<Entity> offers = getDonationOffers(name);
+        List<Entity> offers = getDonationOffers(name, itemType);
         List<DonationOffer> donationOffers = convertFromEntities(offers);    
         String jsonOutput = asJsonDocument(donationOffers);
         
@@ -65,15 +68,23 @@ public class DonationOffers extends HttpServlet{
 	 * @param userid
 	 * @return
 	 */
-	private List<Entity> getDonationOffers(String donorId){
+	private List<Entity> getDonationOffers(String donorId, String type){
+		
+		
+		
 		 log.info("getDonationOffers (Donor-ID = "+donorId+")");
 		 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();     
 		Query query = new Query("DonationOffer").addSort("date", Query.SortDirection.DESCENDING);
 		
 		if(donorId != null && !donorId.trim().isEmpty()){
-			Filter donorIdFilter = new Query.FilterPredicate("donor_id", FilterOperator.EQUAL, donorId);
+			Filter donorIdFilter = new Query.FilterPredicate("donor_id", FilterOperator.EQUAL, donorId);			
 			query.setFilter(donorIdFilter);
+		}
+		//make a filter for donation-types (item)
+		if(type != null && !type.trim().isEmpty()){
+			Filter itemTypeFilter = new Query.FilterPredicate("item_type", FilterOperator.EQUAL, type);
+			query.setFilter(itemTypeFilter);
 		}
 		           
 		List<Entity> offers = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(20));
@@ -96,12 +107,14 @@ public class DonationOffers extends HttpServlet{
         	Date date = (Date)offerProperties.get("date");
         	String numOfferedItems = (offerProperties.get("item_count") != null? offerProperties.get("item_count").toString():"0");
         	int quantity = Integer.parseInt(numOfferedItems);
+        	boolean willDeliver = (Boolean)offerProperties.get("deliver");
         	
         	DonationOffer donationOffer = new DonationOffer();
         	donationOffer.setId(id);
         	donationOffer.setDonorId(donorId);
         	donationOffer.setOfferDate(date);
         	donationOffer.setQuantity(quantity);
+        	donationOffer.setDeliver(willDeliver);
         	
         	//donated/offered item
         	DonatedItem item = new DonatedItem();
@@ -122,11 +135,14 @@ public class DonationOffers extends HttpServlet{
         	String itemSize = (offerProperties.get("item_size") != null? offerProperties.get("item_size").toString():"0");
         	item.setSize(Integer.parseInt(itemSize));
         	
+        	//set donated-item type
+        	String type = (offerProperties.get("item_type") != null? offerProperties.get("item_type").toString():"unknown");
+        	item.setType(type);
+        	
         	donationOffer.setItem(item);
         	
         	//add to list
-        	offers.add(donationOffer);
-        	
+        	offers.add(donationOffer);        	
         	 log.info("convertFromEntities (...) Offers = \n "+Arrays.asList(offers).toString());
         	
         }

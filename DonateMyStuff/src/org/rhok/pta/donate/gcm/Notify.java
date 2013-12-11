@@ -58,7 +58,7 @@ public class Notify extends HttpServlet{
 		}
 		
 		if(decodedPayload != null){
-			log.info("Donation-Bid Payload Parameter (DECODED) = "+decodedPayload);
+			log.info("GCM Registration Request Payload Parameter (DECODED) = "+decodedPayload);
 			//deserialize incoming data into a PushNotificationRegistration
 			PushNotificationRegistration gcmRegistration = (new Gson()).fromJson(decodedPayload, PushNotificationRegistration.class); 
 			doRequest(gcmRegistration, response);
