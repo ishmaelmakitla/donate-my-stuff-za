@@ -3,6 +3,7 @@ package org.rhok.pta.donate.servlets;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,8 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilter;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.users.User;
@@ -78,16 +81,24 @@ public class DonationRequests extends HttpServlet {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
 		Query query = new Query("DonationRequest");
-				
+		Filter donationRequestFilter = null;
+		Filter itemTypeFilter = null;
 		if (beneficiaryId != null && !beneficiaryId.trim().isEmpty()) {			
 			 //filter is same as the WHERE CLAUSE
-			 Filter donationRequestFilter = new Query.FilterPredicate("beneficiary", FilterOperator.EQUAL, beneficiaryId);
-			 query.setFilter(donationRequestFilter);			
+			 donationRequestFilter = new Query.FilterPredicate("beneficiary", FilterOperator.EQUAL, beneficiaryId);
+			// query.setFilter(donationRequestFilter);			
 		   }
 		
 		//make a filter for donation-types (item) - must return donation requests for an item of a certain type (shoes, etc)
 			if(type != null && !type.trim().isEmpty()){
-				Filter itemTypeFilter = new Query.FilterPredicate("item_type", FilterOperator.EQUAL, type);
+				itemTypeFilter = new Query.FilterPredicate("item_type", FilterOperator.EQUAL, type);
+			}
+			
+			if(donationRequestFilter != null && itemTypeFilter !=null){
+				CompositeFilter userItemTypeCombinationFilter = new CompositeFilter(CompositeFilterOperator.AND, Arrays.asList(itemTypeFilter, donationRequestFilter));
+				query.setFilter(userItemTypeCombinationFilter);
+			}
+			else if(donationRequestFilter == null && itemTypeFilter !=null){
 				query.setFilter(itemTypeFilter);
 			}
 		

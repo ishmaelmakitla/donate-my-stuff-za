@@ -23,18 +23,11 @@ public class DonatedItem implements Serializable{
   int size = 0;
   int agerestriction = 0;
   int age = 0;
-  String type; 
-  DonatedItemType itemType;
-  
+  String type;   
   
   public DonatedItem(){
 	  this.id = UUID.randomUUID().toString();
   }
-  
-public DonatedItemType getItemType() {
-	return itemType;
-}
-
 
 
 public String getType() {
@@ -45,7 +38,6 @@ public String getType() {
 
 public void setType(String _type) {	
 	this.type = _type;
-	this.itemType = DonatedItemType.toDonatedItemType(type);
 }
 
 

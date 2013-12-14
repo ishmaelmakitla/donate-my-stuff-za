@@ -18,7 +18,7 @@ public class PushNotificationRegistration {
   //Friendly name of the beneficiary/donor (we may use email address)
   private String handle;
   //GCM operation type (0-registration, 1 send/push notification)
-  private int opcode;
+  private int opcode =0;
   //message payload
   private NotificationMessage message;
   
@@ -84,7 +84,5 @@ public class PushNotificationRegistration {
  public void setMessage(NotificationMessage message) {
 	this.message = message;
  }
-  
-  
   
 }

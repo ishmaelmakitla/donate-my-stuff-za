@@ -14,7 +14,7 @@ public class NotificationMessage {
 	//sender should always be the Project-API-ID
 	private String sender;
 	//content of the notification
-	private String message;
+	private String content;
 	//array of users to send the notification to (1 - inf)
 	private String[] recipients;
 	
@@ -25,7 +25,7 @@ public class NotificationMessage {
 	public NotificationMessage(String sender, String message,String[] recipients) {
 
 		this.sender = sender;
-		this.message = message;
+		this.content = message;
 		this.recipients = recipients;
 	}
 
@@ -38,11 +38,11 @@ public class NotificationMessage {
 	}
 
 	public String getMessage() {
-		return message;
+		return content;
 	}
 
 	public void setMessage(String message) {
-		this.message = message;
+		this.content = message;
 	}
 
 	public String[] getRecipients() {

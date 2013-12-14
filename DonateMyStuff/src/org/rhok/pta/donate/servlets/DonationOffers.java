@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.rhok.pta.donate.models.DonatedItem;
 import org.rhok.pta.donate.models.DonationOffer;
+import org.rhok.pta.donate.utils.DonateMyStuffUtils;
 import org.rhok.pta.donate.utils.DonateMyStuffUtils.DonatedItemType;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -26,6 +27,8 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilter;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.users.User;
@@ -60,7 +63,7 @@ public class DonationOffers extends HttpServlet{
         List<DonationOffer> donationOffers = convertFromEntities(offers);    
         String jsonOutput = asJsonDocument(donationOffers);
         
-        writeOutput(resp,jsonOutput);
+        DonateMyStuffUtils.writeOutput(resp,jsonOutput);
 	}
 		
 	/**
@@ -77,13 +80,23 @@ public class DonationOffers extends HttpServlet{
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();     
 		Query query = new Query("DonationOffer").addSort("date", Query.SortDirection.DESCENDING);
 		
+		
+		Filter itemTypeFilter = null;
+		Filter donorIdFilter = null;
+		
 		if(donorId != null && !donorId.trim().isEmpty()){
-			Filter donorIdFilter = new Query.FilterPredicate("donor_id", FilterOperator.EQUAL, donorId);			
-			query.setFilter(donorIdFilter);
+			donorIdFilter = new Query.FilterPredicate("donor_id", FilterOperator.EQUAL, donorId);	
 		}
 		//make a filter for donation-types (item)
 		if(type != null && !type.trim().isEmpty()){
-			Filter itemTypeFilter = new Query.FilterPredicate("item_type", FilterOperator.EQUAL, type);
+			itemTypeFilter = new Query.FilterPredicate("item_type", FilterOperator.EQUAL, type);
+		}
+		
+		if(donorIdFilter != null && itemTypeFilter !=null){
+			CompositeFilter userItemTypeCombinationFilter = new CompositeFilter(CompositeFilterOperator.AND, Arrays.asList(itemTypeFilter, donorIdFilter));
+			query.setFilter(userItemTypeCombinationFilter);
+		}
+		else if(donorIdFilter == null && itemTypeFilter !=null){
 			query.setFilter(itemTypeFilter);
 		}
 		           
@@ -172,22 +185,4 @@ public class DonationOffers extends HttpServlet{
 		return doc;
 	}
 	
-	/**
-	 * This method is used to write the output (JSON)
-	 * @param response - response object of the incoming HTTP request
-	 * @param output - message to be out-put
-	 */
-	private void writeOutput(HttpServletResponse response,String output){
-		//send back JSON response
-		 log.info("writeOutput()...returning : "+output);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        try{
-        	Writer outputWriter = response.getWriter();
-        	outputWriter.write(output);
-        }
-        catch(IOException ioe){
-        	log.severe(ioe.getLocalizedMessage());
-        }
-	}
 }

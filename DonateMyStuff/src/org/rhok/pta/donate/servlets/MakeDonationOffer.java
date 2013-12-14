@@ -107,9 +107,7 @@ public class MakeDonationOffer extends HttpServlet{
             donationOffer.setProperty("id", requestId);
         	donationOffer.setProperty("donor_id", donationOfferObject.getDonorId());
         	donationOffer.setProperty("date", donationOfferObject.getOfferDate());   
-        	
-        	String message = ""; 
-        	
+        	        	
         	if(donationOfferObject.getItem()!= null){        		        	
                 donationOffer.setProperty("item_name", donationOfferObject.getItem().getName());                
                 donationOffer.setProperty("item_size", donationOfferObject.getItem().getSize());
