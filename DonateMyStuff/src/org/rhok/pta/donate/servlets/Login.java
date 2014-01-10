@@ -129,6 +129,13 @@ public class Login extends HttpServlet{
 		LoginRequest loginRequest = (new Gson()).fromJson(data, LoginRequest.class);
 		if(loginRequest != null){
 			Entity knownUser = getUser(loginRequest.getUsername(), loginRequest.getPassword());
+			
+			if(knownUser == null){
+				log.info("User NOT Found With ID:: "+loginRequest.getUsername());
+				DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.LOGIN_FAILED, "Login Failed"));
+				return;
+			}
+			
 			Object uidProperty =  knownUser.getProperty("id");
 			
 			String userID = (uidProperty != null?  uidProperty.toString(): "");
