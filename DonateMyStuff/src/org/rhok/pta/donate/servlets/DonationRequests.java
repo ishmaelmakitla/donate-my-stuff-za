@@ -60,7 +60,7 @@ public class DonationRequests extends HttpServlet {
 		List<Entity> requests = getDonationRequests(beneficiaryId, type);
 		
 		//reduce to only valid/verified requests
-		List<Entity> validRequests = returnValidDonationRequests(requests);
+		List<Entity> validRequests = returnValidDonationRequests(requests, beneficiaryId);
 		
 		if(validRequests != null){
 			List<DonationRequest> donationRequests = convertFromEntities(validRequests);
@@ -75,11 +75,15 @@ public class DonationRequests extends HttpServlet {
 	}
 
 	/**
-	 * Method for retrieving ONLY Valid Offers (Status = OPEN and Flag = VALID)
+	 * Method for retrieving ONLY Valid Offers (Status = OPEN and Flag = VALID) - However, if the requesting user is a manager,
+	 * then All-Requests are returned, that is, the allOffers argument is returned as is
 	 * @param allOffers
 	 * @return
 	 */
-	private List<Entity> returnValidDonationRequests(List<Entity> allRequests){
+	private List<Entity> returnValidDonationRequests(List<Entity> allRequests, String userId){
+		//managers can see ALL
+		if(userId != null && isManager(userId)){ return allRequests; }
+		
 		List<Entity> validRequests = new ArrayList<Entity>();
 		for(Entity aRequest: allRequests){
         	Map<String, Object> requestProperties = aRequest.getProperties();
@@ -218,5 +222,17 @@ public class DonationRequests extends HttpServlet {
         catch(IOException ioe){
         	
         }
+	}
+	
+	/**
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	private boolean isManager(String userId){
+		boolean _isManager = false;
+		//check if there's a manager by this ID
+		
+		return _isManager;
 	}
 }

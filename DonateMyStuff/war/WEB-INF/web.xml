@@ -57,6 +57,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<url-pattern>/register</url-pattern>
 	</servlet-mapping>	
 	
+	<!-- Donation-Manager-Register Servlet 4.2-->	
+	<servlet>
+		<servlet-name>RegisterManager</servlet-name>
+		<servlet-class>org.rhok.pta.donate.servlets.RegisterManager</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>RegisterManager</servlet-name>
+		<url-pattern>/registermanager</url-pattern>
+	</servlet-mapping>	
+	
 	<!--  login servlet  5-->
 	<servlet>
 		<servlet-name>Login</servlet-name>
@@ -65,6 +75,16 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<servlet-mapping>
 		<servlet-name>Login</servlet-name>
 		<url-pattern>/login</url-pattern>
+	</servlet-mapping>	
+	
+	<!--  Manager login servlet 5.2-->
+	<servlet>
+		<servlet-name>ManagerLogin</servlet-name>
+		<servlet-class>org.rhok.pta.donate.servlets.ManagerLogin</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ManagerLogin</servlet-name>
+		<url-pattern>/managerlogin</url-pattern>
 	</servlet-mapping>	
 	
 	<!--  Bidding servlet  6-->

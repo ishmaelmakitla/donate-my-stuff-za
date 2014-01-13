@@ -9,6 +9,12 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.gson.JsonObject;
 
 /**
@@ -113,6 +119,36 @@ public class DonateMyStuffUtils {
         catch(IOException ioe){
         	
         }
+	}
+	
+	/**
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	public static boolean isManager(String userId){
+		boolean _isManager = false;
+		//check if there's a manager by this ID
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();	
+		
+		//so here we are checking if the offer exists
+		Query managerQuery   = new Query("DonationManager");
+		Filter managerIdFilter = new Query.FilterPredicate("id", FilterOperator.EQUAL, userId);
+		managerQuery.setFilter(managerIdFilter);
+			
+		try{
+			Entity manager = datastore.prepare(managerQuery).asSingleEntity();
+			if(manager !=null){
+				//the record exists, what role has been assigned to this user?
+				_isManager = true;
+			}
+		}
+		catch(Exception e){
+			//possible some datastore errors
+		}
+			
+			
+		return _isManager;
 	}
 	
 	
