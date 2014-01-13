@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.rhok.pta.donate.models.DonatedItem;
 import org.rhok.pta.donate.models.DonationOffer;
+import org.rhok.pta.donate.utils.DonateMyStuffConstants;
 import org.rhok.pta.donate.utils.DonateMyStuffUtils;
 import org.rhok.pta.donate.utils.DonateMyStuffUtils.DonatedItemType;
 
@@ -60,21 +61,48 @@ public class DonationOffers extends HttpServlet{
         
         //we need to process the get request here...
         List<Entity> offers = getDonationOffers(name, itemType);
-        List<DonationOffer> donationOffers = convertFromEntities(offers);    
-        String jsonOutput = asJsonDocument(donationOffers);
         
-        DonateMyStuffUtils.writeOutput(resp,jsonOutput);
+        //reduce to only VALID and OPEN offers
+        List<Entity> validOffers = returnValidDonationOffers(offers);
+        if(validOffers != null){
+        	List<DonationOffer> donationOffers = convertFromEntities(validOffers);    
+            String jsonOutput = asJsonDocument(donationOffers);
+            
+            DonateMyStuffUtils.writeOutput(resp,jsonOutput);
+        }
+        else{
+        	DonateMyStuffUtils.writeOutput(resp,DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.DONATION_REQUEST_FAILURE, "No Donation Offers"));
+		}
+        
 	}
+	
+	/**
+	 * Method for retrieving ONLY Valid Offers (Status = OPEN and Flag = VALID)
+	 * @param allOffers
+	 * @return
+	 */
+	private List<Entity> returnValidDonationOffers(List<Entity> allOffers){
+		List<Entity> validOffers = new ArrayList<Entity>();
+		for(Entity anOffer: allOffers){
+        	Map<String, Object> offerProperties = anOffer.getProperties();
+        	if(offerProperties.get("status") != null && offerProperties.get("flag") != null){
+        	   int status = (int)offerProperties.get("status");
+        	   int flag = (int)offerProperties.get("flag");
+        	   if(status == DonateMyStuffConstants.STATUS_OPEN && flag == DonateMyStuffConstants.FLAG_VALID){
+        		 validOffers.add(anOffer);
+        	   }
+        	}
+		}
 		
+		return validOffers;
+	}
 	/**
 	 * Method for retrieving list of offers (made by the current donor, hence donorId) - null means retrieve all offers
 	 * @param userid
 	 * @return
 	 */
 	private List<Entity> getDonationOffers(String donorId, String type){
-		
-		
-		
+						
 		 log.info("getDonationOffers (Donor-ID = "+donorId+")");
 		 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();     

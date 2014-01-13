@@ -18,14 +18,14 @@ public class DonationBid {
 	private Date date;
 	
 	public DonationBid(){
-		this.id = UUID.randomUUID().toString();
+		this.id = generateId();
 	}
 	
-	
+	private String generateId(){ return UUID.randomUUID().toString(); }
 
-	public DonationBid(String id, String offerid, String requestid,String beneficiaryid) {
+	public DonationBid(String _id, String offerid, String requestid,String beneficiaryid) {
 		super();
-		this.id = id;
+		this.id = (_id !=null && !_id.trim().isEmpty()? _id: generateId());
 		this.offerid = offerid;
 		this.requestid = requestid;
 		this.beneficiaryid = beneficiaryid;

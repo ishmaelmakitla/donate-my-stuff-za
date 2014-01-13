@@ -86,4 +86,45 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-name>Notify</servlet-name>
 		<url-pattern>/notify</url-pattern>
 	</servlet-mapping>
+	
+	<!-- DonationRequestStatusChange -->
+	<servlet>
+		<servlet-name>DonationRequestStatusChange</servlet-name>
+		<servlet-class>org.rhok.pta.donate.servlets.DonationRequestStatusChange</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DonationRequestStatusChange</servlet-name>
+		<url-pattern>/changerequeststatus</url-pattern>
+	</servlet-mapping>
+	
+	<!-- DonationOfferStatusChange -->
+	<servlet>
+		<servlet-name>DonationOfferStatusChange</servlet-name>
+		<servlet-class>org.rhok.pta.donate.servlets.DonationOfferStatusChange</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DonationOfferStatusChange</servlet-name>
+		<url-pattern>/changeofferstatus</url-pattern>
+	</servlet-mapping>
+	
+	<!-- DonationRequestFlagChange -->
+	<servlet>
+		<servlet-name>DonationRequestFlagChange</servlet-name>
+		<servlet-class>org.rhok.pta.donate.servlets.DonationRequestFlagChange</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DonationRequestFlagChange</servlet-name>
+		<url-pattern>/changerequestflag</url-pattern>
+	</servlet-mapping>
+	
+	<!-- DonationOfferFlagChange -->
+	<servlet>
+		<servlet-name>DonationOfferFlagChange</servlet-name>
+		<servlet-class>org.rhok.pta.donate.servlets.DonationOfferFlagChange</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DonationOfferFlagChange</servlet-name>
+		<url-pattern>/changeofferflag</url-pattern>
+	</servlet-mapping>
+	
 </web-app>

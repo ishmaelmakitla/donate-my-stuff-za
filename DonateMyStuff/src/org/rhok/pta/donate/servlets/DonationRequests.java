@@ -57,9 +57,13 @@ public class DonationRequests extends HttpServlet {
 		
         log.info("doGet(...) Beneficiary-ID = "+beneficiaryId);
 		// we need to process the get request here...
-		List<Entity> requests = getDonationOffers(beneficiaryId, type);
-		if(requests != null){
-			List<DonationRequest> donationRequests = convertFromEntities(requests);
+		List<Entity> requests = getDonationRequests(beneficiaryId, type);
+		
+		//reduce to only valid/verified requests
+		List<Entity> validRequests = returnValidDonationRequests(requests);
+		
+		if(validRequests != null){
+			List<DonationRequest> donationRequests = convertFromEntities(validRequests);
 			String jsonDonationRequests = asJsonDocument(donationRequests);
 			//return a JSON containing an array of donation-requests
 			writeOutput(resp,jsonDonationRequests);
@@ -71,11 +75,31 @@ public class DonationRequests extends HttpServlet {
 	}
 
 	/**
+	 * Method for retrieving ONLY Valid Offers (Status = OPEN and Flag = VALID)
+	 * @param allOffers
+	 * @return
+	 */
+	private List<Entity> returnValidDonationRequests(List<Entity> allRequests){
+		List<Entity> validRequests = new ArrayList<Entity>();
+		for(Entity aRequest: allRequests){
+        	Map<String, Object> requestProperties = aRequest.getProperties();
+        	if(requestProperties.get("status") != null && requestProperties.get("flag") != null){
+        	   int status = (int)requestProperties.get("status");
+        	   int flag = (int)requestProperties.get("flag");
+        	   if(status == DonateMyStuffConstants.STATUS_OPEN && flag == DonateMyStuffConstants.FLAG_VALID){
+        		   validRequests.add(aRequest);
+        	   }
+        	}
+		}
+		
+		return validRequests;
+	}
+	/**
 	 * This is a helper method for retrieving list of Donation Requests from the
 	 * DataStore - if beneficiaryId is not null, then only donation requests made by the specified beneficiary are retrieved, otherwise
 	 * all requests are retrieved.
 	 */
-	private List<Entity> getDonationOffers(String beneficiaryId, String type) {
+	private List<Entity> getDonationRequests(String beneficiaryId, String type) {
 		List<Entity> offers = null;
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();

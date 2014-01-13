@@ -1,11 +1,15 @@
 package org.rhok.pta.donate.models;
 
+import java.io.Serializable;
+
 import org.mortbay.util.ajax.JSONObjectConvertor;
 
 import com.google.gson.JsonObject;
 
-public class ResidentialAddress {
+public class ResidentialAddress implements Serializable{
 
+	private static final long serialVersionUID = -5764412644200007856L;
+	
 	private String unitnumber;
 	private String unitname;
 	private String streetname;

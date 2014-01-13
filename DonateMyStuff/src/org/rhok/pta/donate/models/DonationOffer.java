@@ -5,6 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
+import org.rhok.pta.donate.utils.DonateMyStuffConstants;
+import org.rhok.pta.donate.utils.DonateMyStuffUtils;
+
 import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
 import com.google.gson.JsonElement;
@@ -15,7 +18,7 @@ import com.google.gson.JsonObject;
  * @author Ishmael Makitla
  *
  */
-public class DonationOffer {
+public class DonationOffer extends DonationBase{
     String id;
     String donorid;
     String donationrequestid;
@@ -24,7 +27,9 @@ public class DonationOffer {
     int quantity = 0;
     boolean deliver;
     
+    
     public DonationOffer(){
+    	super();
     	//
     	this.id = UUID.randomUUID().toString();
     	this.offerdate = new Date();
@@ -79,8 +84,6 @@ public class DonationOffer {
 		this.quantity = quantity;
 	}
 	
-	
-
 	public boolean isDeliver() {
 		return deliver;
 	}
@@ -88,9 +91,12 @@ public class DonationOffer {
 	public void setDeliver(boolean deliver) {
 		this.deliver = deliver;
 	}
-
+	
+	
+	
 	/**
 	 * This method returns a JSON version of the instantiated DonationOffer object
+	 * The Flag and Status are not public readable and hence the JSON version does not contain them
 	 * @return
 	 */
 	public JsonObject asJSON(){
