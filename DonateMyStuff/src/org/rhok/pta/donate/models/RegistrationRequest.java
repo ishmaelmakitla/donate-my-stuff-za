@@ -78,6 +78,10 @@ public class RegistrationRequest {
 	public String getRegistrationID() {
 		return registrationID;
 	}
+	
+	public void setRegistrationID(String id){
+		this.registrationID = id;
+	}
 
 	public String getName() {
 		return name;

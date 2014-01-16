@@ -117,8 +117,8 @@ public class RegisterManager extends HttpServlet{
         //set reg id
         String id  = UUID.randomUUID().toString(); 
         registration.setId(id);
-        Key registrationRequestsKey = KeyFactory.createKey("ManagerRegistrationRequest", id);
-        Entity registrationRequest = new Entity("RegistrationRequest", registrationRequestsKey);
+        Key registrationRequestsKey = KeyFactory.createKey("DonationManager", id);
+        Entity registrationRequest = new Entity("DonationManager", registrationRequestsKey);
         
         //set id
         registrationRequest.setProperty("id", id);

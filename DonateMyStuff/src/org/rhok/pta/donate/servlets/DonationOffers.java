@@ -62,8 +62,8 @@ public class DonationOffers extends HttpServlet{
         //we need to process the get request here...
         List<Entity> offers = getDonationOffers(name, itemType);
         
-        //reduce to only VALID and OPEN offers
-        List<Entity> validOffers = returnValidDonationOffers(offers);
+        //reduce to only VALID and OPEN offers - unless the user is the manager -then return all
+        List<Entity> validOffers = returnValidDonationOffers(offers, name);
         if(validOffers != null){
         	List<DonationOffer> donationOffers = convertFromEntities(validOffers);    
             String jsonOutput = asJsonDocument(donationOffers);
@@ -81,7 +81,10 @@ public class DonationOffers extends HttpServlet{
 	 * @param allOffers
 	 * @return
 	 */
-	private List<Entity> returnValidDonationOffers(List<Entity> allOffers){
+	private List<Entity> returnValidDonationOffers(List<Entity> allOffers, String userId){
+		
+		if(isManager(userId)){ return allOffers; }
+		
 		List<Entity> validOffers = new ArrayList<Entity>();
 		for(Entity anOffer: allOffers){
         	Map<String, Object> offerProperties = anOffer.getProperties();
@@ -211,6 +214,20 @@ public class DonationOffers extends HttpServlet{
 		doc = offersJsonObject.toString();
 		
 		return doc;
+	}
+	
+	/**
+	 * Check if the specified user is indeed a manager - TODO: simply call the static method directly...
+	 * @param userId
+	 * @return
+	 */
+	private boolean isManager(String userId){
+		boolean _isManager = false;
+		//check if there's a manager by this ID
+		_isManager = DonateMyStuffUtils.isManager(userId);
+		//TEMP FIX: Until the Portal does the login and registration...
+		return true;
+		//return _isManager;
 	}
 	
 }

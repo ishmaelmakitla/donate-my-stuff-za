@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.mortbay.util.ajax.JSONObjectConvertor;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 public class ResidentialAddress implements Serializable{
@@ -98,18 +99,21 @@ public class ResidentialAddress implements Serializable{
 	}
 	@Override
 	public String toString(){
-		String address = "";
-		JsonObject jsonAddress = new JsonObject();
-		jsonAddress.addProperty("unit_number", unitnumber);
-		jsonAddress.addProperty("unit_name", unitname);
-		jsonAddress.addProperty("street", streetname);
-		jsonAddress.addProperty("area", areaname);
-		jsonAddress.addProperty("city", city);
-		jsonAddress.addProperty("province", province);
-		jsonAddress.addProperty("country", country);
-		jsonAddress.addProperty("x", xcoordinate);
-		jsonAddress.addProperty("y", ycoordinate);
-		address = jsonAddress.toString();
-		return address;
+		//String address = "";
+		String json = (new Gson()).toJson(this, ResidentialAddress.class);
+		
+//		JsonObject jsonAddress = new JsonObject();
+//		jsonAddress.addProperty("unit_number", unitnumber);
+//		jsonAddress.addProperty("unit_name", unitname);
+//		jsonAddress.addProperty("street", streetname);
+//		jsonAddress.addProperty("area", areaname);
+//		jsonAddress.addProperty("city", city);
+//		jsonAddress.addProperty("province", province);
+//		jsonAddress.addProperty("country", country);
+//		jsonAddress.addProperty("x", xcoordinate);
+//		jsonAddress.addProperty("y", ycoordinate);
+//		address = jsonAddress.toString();
+		
+		return json;
 	}
 }

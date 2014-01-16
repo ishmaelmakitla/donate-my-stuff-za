@@ -232,7 +232,9 @@ public class DonationRequests extends HttpServlet {
 	private boolean isManager(String userId){
 		boolean _isManager = false;
 		//check if there's a manager by this ID
-		
-		return _isManager;
+		_isManager = DonateMyStuffUtils.isManager(userId);
+		//TEMP FIX
+		return true;
+		//return _isManager;
 	}
 }

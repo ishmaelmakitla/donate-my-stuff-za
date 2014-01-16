@@ -147,4 +147,23 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<url-pattern>/changeofferflag</url-pattern>
 	</servlet-mapping>
 	
+	<!-- Beneficiaries -->
+	<servlet>
+		<servlet-name>Beneficiaries</servlet-name>
+		<servlet-class>org.rhok.pta.donate.servlets.Beneficiaries</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Beneficiaries</servlet-name>
+		<url-pattern>/beneficiaries</url-pattern>
+	</servlet-mapping>
+	
+	<!-- Donors -->
+	<servlet>
+		<servlet-name>Donors</servlet-name>
+		<servlet-class>org.rhok.pta.donate.servlets.Donors</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Donors</servlet-name>
+		<url-pattern>/donors</url-pattern>
+	</servlet-mapping>
 </web-app>
