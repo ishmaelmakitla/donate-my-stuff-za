@@ -111,6 +111,11 @@ public class RegisterManager extends HttpServlet{
 	 */
 	private void doRegister(ManagerRegistrationRequest registration, HttpServletResponse response) throws IOException{
      
+		if(DonateMyStuffUtils.managerExists(registration.getName(), registration.getEmail())){
+			String error = "Manager Registration Failed: User Already Exists";
+        	DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, error));
+			return;
+		}
         
         Date date = new Date();
         
@@ -131,8 +136,15 @@ public class RegisterManager extends HttpServlet{
         registrationRequest.setProperty("mobile", registration.getMobile());
         //set telephone number
         registrationRequest.setProperty("telephone", registration.getTelephone());
-        //set email
-        registrationRequest.setProperty("email", registration.getEmail());
+        //set email - email cannot be null for manager registration
+        String emailAddress = registration.getEmail();
+        //will improve this by having a static method to check for non-null values
+        if(emailAddress == null ||emailAddress.trim().isEmpty() || registration.getPassword() ==null || registration.getPassword().trim().isEmpty() ){
+        	String reason = "Manager Registration Failed: Email/Password cannot be null or empty";
+        	DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, reason));
+        	return;
+        }
+        registrationRequest.setProperty("email", emailAddress);
         //set password
         registrationRequest.setProperty("password", registration.getPassword());
         

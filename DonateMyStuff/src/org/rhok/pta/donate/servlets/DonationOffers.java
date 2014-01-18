@@ -89,8 +89,13 @@ public class DonationOffers extends HttpServlet{
 		for(Entity anOffer: allOffers){
         	Map<String, Object> offerProperties = anOffer.getProperties();
         	if(offerProperties.get("status") != null && offerProperties.get("flag") != null){
-        	   int status = (int)offerProperties.get("status");
-        	   int flag = (int)offerProperties.get("flag");
+        		//flag
+            	Object objFlag = offerProperties.get("flag");
+            	int flag =Integer.parseInt(objFlag.toString());         	
+            	//status
+            	Object objStatus = offerProperties.get("status");
+            	int status = Integer.parseInt(objStatus.toString());
+        		        	   
         	   if(status == DonateMyStuffConstants.STATUS_OPEN && flag == DonateMyStuffConstants.FLAG_VALID){
         		 validOffers.add(anOffer);
         	   }
@@ -153,12 +158,24 @@ public class DonationOffers extends HttpServlet{
         	int quantity = Integer.parseInt(numOfferedItems);
         	boolean willDeliver = (Boolean)offerProperties.get("deliver");
         	
+        	//flag
+        	Object objFlag = offerProperties.get("flag");
+        	int flag =(objFlag != null? Integer.parseInt(objFlag.toString()): 0);         	
+        	//status
+        	Object objStatus = offerProperties.get("status");
+        	int status = (objStatus != null ? Integer.parseInt(objStatus.toString()):0);
+        	
         	DonationOffer donationOffer = new DonationOffer();
         	donationOffer.setId(id);
         	donationOffer.setDonorId(donorId);
         	donationOffer.setOfferDate(date);
         	donationOffer.setQuantity(quantity);
         	donationOffer.setDeliver(willDeliver);
+        	
+        	//status
+        	donationOffer.setStatus(status);
+        	//flag
+        	donationOffer.setFlag(flag);
         	
         	//donated/offered item
         	DonatedItem item = new DonatedItem();

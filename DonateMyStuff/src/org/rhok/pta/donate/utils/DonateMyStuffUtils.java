@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilter;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.gson.JsonObject;
@@ -152,4 +156,50 @@ public class DonateMyStuffUtils {
 	}
 	
 	
+	public static boolean userExists(String username, String email){
+		boolean exists = true;
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		
+		Query query = new Query("RegistrationRequest");
+		
+		//filter is same as the WHERE CLAUSE
+		Filter emailFilter = new Query.FilterPredicate("email", FilterOperator.EQUAL, email);
+		Filter userNameFilter = new Query.FilterPredicate("username", FilterOperator.EQUAL, username);
+		
+		CompositeFilter userCombinationFilter = new CompositeFilter(CompositeFilterOperator.AND, Arrays.asList(userNameFilter, emailFilter));
+		
+		query.setFilter(userCombinationFilter);
+		
+		PreparedQuery pq = datastore.prepare(query);
+		Entity user = pq.asSingleEntity();
+		exists = (user == null? false:true);
+		return exists;
+	}
+	
+	/**
+	 * Helper method to look-up a manager to check if the record already exists
+	 * 
+	 * @param username
+	 * @param email
+	 * @return
+	 */
+	public static boolean managerExists(String username, String email){
+		boolean exists = true;
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		
+		Query query = new Query("DonationManager");
+		
+		//filter is same as the WHERE CLAUSE
+		Filter emailFilter = new Query.FilterPredicate("email", FilterOperator.EQUAL, email);
+		Filter userNameFilter = new Query.FilterPredicate("name", FilterOperator.EQUAL, username);
+		
+		CompositeFilter managerCombinationFilter = new CompositeFilter(CompositeFilterOperator.OR, Arrays.asList(userNameFilter, emailFilter));
+		
+		query.setFilter(managerCombinationFilter);
+		
+		PreparedQuery pq = datastore.prepare(query);
+		Entity user = pq.asSingleEntity();
+		exists = (user == null? false:true);
+		return exists;
+	}
 }

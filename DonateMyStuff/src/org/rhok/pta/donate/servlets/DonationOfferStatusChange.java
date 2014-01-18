@@ -13,6 +13,8 @@ import org.rhok.pta.donate.models.DonationStatusChangeRequest;
 import org.rhok.pta.donate.utils.DonateMyStuffConstants;
 import org.rhok.pta.donate.utils.DonateMyStuffUtils;
 
+import com.google.appengine.api.datastore.Key;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -107,7 +109,13 @@ public class DonationOfferStatusChange extends HttpServlet{
 	     
 	     //save
 	     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();	
-	     datastore.put(updatedDonationOfferEntity);
+	     Key newEntry = datastore.put(updatedDonationOfferEntity);
+	     if(newEntry != null){
+	    	 DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.OK, "Status Change Successful"));	 
+	     }
+	     else{
+	    	 DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "Could Not Save Status Change"));	
+	     }
 	}
 	
 	/**

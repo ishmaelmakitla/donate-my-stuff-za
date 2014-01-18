@@ -88,8 +88,13 @@ public class DonationRequests extends HttpServlet {
 		for(Entity aRequest: allRequests){
         	Map<String, Object> requestProperties = aRequest.getProperties();
         	if(requestProperties.get("status") != null && requestProperties.get("flag") != null){
-        	   int status = (int)requestProperties.get("status");
-        	   int flag = (int)requestProperties.get("flag");
+        		//flag
+            	Object objFlag = requestProperties.get("flag");
+            	int flag =Integer.parseInt(objFlag.toString());         	
+            	//status
+            	Object objStatus = requestProperties.get("status");
+            	int status = Integer.parseInt(objStatus.toString());
+        		
         	   if(status == DonateMyStuffConstants.STATUS_OPEN && flag == DonateMyStuffConstants.FLAG_VALID){
         		   validRequests.add(aRequest);
         	   }
@@ -148,11 +153,23 @@ public class DonationRequests extends HttpServlet {
         	String beneficiaryId = (String)donationRequestProperties.get("beneficiary");
         	String id = (String)donationRequestProperties.get("id");
         	Date date = (Date)donationRequestProperties.get("date");
-        	        	
+        	
+        	//flag
+        	Object objFlag = donationRequestProperties.get("flag");
+        	int flag =(objFlag != null? Integer.parseInt(objFlag.toString()): 0);         	
+        	//status
+        	Object objStatus = donationRequestProperties.get("status");
+        	int status = (objStatus != null ? Integer.parseInt(objStatus.toString()):0);
+        	        	        	
         	DonationRequest donationRequest = new DonationRequest();
         	donationRequest.setId(id);
         	donationRequest.setBeneficriaryId(beneficiaryId);
         	donationRequest.setRequestDate(date);
+        	
+        	//status
+        	donationRequest.setStatus(status);
+        	//flag
+        	donationRequest.setFlag(flag);
         	
         	String offerId = (donationRequestProperties.get("donation_offer_id") != null? donationRequestProperties.get("donation_offer_id").toString():"0"); 
         	donationRequest.setDonationOfferId(offerId);

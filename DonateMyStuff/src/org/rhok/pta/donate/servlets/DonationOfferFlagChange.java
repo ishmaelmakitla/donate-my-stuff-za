@@ -17,6 +17,7 @@ import org.rhok.pta.donate.utils.DonateMyStuffUtils;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
@@ -99,7 +100,14 @@ public class DonationOfferFlagChange extends HttpServlet{
 	     
 	     //save
 	     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();	
-	     datastore.put(updatedDonationOfferEntity);
+	     
+	     Key newEntry =  datastore.put(updatedDonationOfferEntity);
+	     if(newEntry != null){
+	    	 DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.OK, "Flag Change Successful"));	 
+	     }
+	     else{
+	    	 DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.ERROR, "Could Not Save Flag Change"));	
+	     }
 	}
 	
 	/**

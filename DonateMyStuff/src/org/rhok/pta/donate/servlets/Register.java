@@ -148,6 +148,11 @@ public class Register extends HttpServlet{
 	 */
 	private void doRegister(RegistrationRequest registration, HttpServletResponse response) throws IOException{
      
+		if(DonateMyStuffUtils.userExists(registration.getUsername(), registration.getEmail())){
+			String error = "User Registration Failed: User Already Exists";
+        	DonateMyStuffUtils.writeOutput(response, DonateMyStuffUtils.asServerResponse(DonateMyStuffConstants.REGISTRATION_FAILED, error));
+			return;
+		}
         
         Date date = new Date();
         

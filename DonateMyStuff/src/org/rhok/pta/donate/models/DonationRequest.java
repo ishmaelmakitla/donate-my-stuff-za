@@ -15,15 +15,38 @@ public class DonationRequest {
     DonatedItem item;
     boolean collect;
     
+    int status;
+    int flag;
+    
     public DonationRequest(){
     	this.id = UUID.randomUUID().toString();
     }
     
         
-    public String getId() {
-		return id;
+        
+    public int getStatus() {
+		return status;
 	}
 
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+
+	public int getFlag() {
+		return flag;
+	}
+
+
+	public void setFlag(int flag) {
+		this.flag = flag;
+	}
+
+
+	public String getId() {
+		return id;
+	}
 
 
 	public void setId(String id) {
@@ -31,11 +54,9 @@ public class DonationRequest {
 	}
 
 
-
 	public String getBeneficriaryId() {
 		return beneficiaryid;
 	}
-
 
 
 	public void setBeneficriaryId(String beneficriaryId) {
@@ -43,11 +64,9 @@ public class DonationRequest {
 	}
 
 
-
 	public String getDonationOfferId() {
 		return donationofferid;
 	}
-
 
 
 	public void setDonationOfferId(String donationOfferId) {
@@ -55,11 +74,9 @@ public class DonationRequest {
 	}
 
 
-
 	public Date getRequestDate() {
 		return requestdate;
 	}
-
 
 
 	public void setRequestDate(Date requestDate) {
@@ -67,11 +84,9 @@ public class DonationRequest {
 	}
 
 
-
 	public DonatedItem getRequestedDonationItem() {
 		return item;
 	}
-
 
 
 	public void setRequestedDonationItem(DonatedItem requestedDonationItem) {
